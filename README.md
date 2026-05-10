@@ -16,7 +16,7 @@ Celá logika beží **výhradne v prehliadači** — žiadny backend, žiadny se
 
 ## ✨ Efekty (30 spolu)
 
-Efekty sú rozdelené do dvoch kategórií, ktoré sa prepínajú tabmi v spodnom paneli:
+Efekty sú rozdelené do dvoch kategórií, ktoré sa prepínajú tabmi v spodnom paneli.
 
 ### 📷 + 🖼️ Obrázok + Kamera (21 efektov)
 
@@ -111,31 +111,37 @@ Tlačidlo **×** v rohu canvasu zastaví kameru, vymaže obrázok a vráti aplik
 ---
 
 ## 🛠️ Technický stack
-HTML5 + CSS3 + JavaScript (ES2020+)
-├── WebGL 1.0 (GLSL ES 1.0) — 19 fragment shaderov
-│   ├── Cyber Glitch, Neon Edge (Sobel), Thermal, Kaleidoscope
-│   ├── Oil Paint (Kuwahara filter — precision highp float)
-│   ├── Pixelate, Sketch, Comic Book, VHS Retro, CRT Screen
-│   ├── Blur Focus, Night Vision, RGB Split, Posterize
-│   ├── Duotone (5-palette tritone cycler), Hologram
-│   ├── Liquid Wave (multi-octave sine + caustics), Emboss
-│   └── Halftone (CMYK-style dot raster)
-├── Canvas 2D API — 11 efektov + overlay
-│   ├── ASCII Art renderer
-│   ├── Matrix Rain (animated falling characters)
-│   ├── Time Warp scan system (frame-by-frame freeze)
-│   ├── Mirror Dream (Rorschach symmetry)
-│   ├── Mirror Tunnel (concentric mirror rings)
-│   ├── Swirl Vortex (per-pixel polar UV warp)
-│   ├── Slit Scan (ring buffer of frames)
-│   ├── Stardust (380-particle system s motion trails)
-│   ├── Datamosh (random freeze + RGB tear)
-│   ├── RGB Delay (channel-separated time delay)
-│   ├── Sci-Fi Scanner (accumulator-based scan band)
-│   └── Vignette + Film Grain overlay
-├── MediaDevices API — webcam capture s error handling
-├── FileReader API — image upload + drag & drop
-└── Google Fonts — Space Grotesk
+
+**HTML5 + CSS3 + JavaScript (ES2020+)**
+
+**WebGL 1.0 (GLSL ES 1.0) — 19 fragment shaderov:**
+- Cyber Glitch, Neon Edge (Sobel), Thermal, Kaleidoscope
+- Oil Paint (Kuwahara filter — `precision highp float`)
+- Pixelate, Sketch, Comic Book, VHS Retro, CRT Screen
+- Blur Focus, Night Vision, RGB Split, Posterize
+- Duotone (5-palette tritone cycler), Hologram
+- Liquid Wave (multi-octave sine + caustics), Emboss
+- Halftone (CMYK-style dot raster)
+
+**Canvas 2D API — 11 efektov + overlay:**
+- ASCII Art renderer
+- Matrix Rain (animated falling characters)
+- Time Warp scan system (frame-by-frame freeze)
+- Mirror Dream (Rorschach symmetry)
+- Mirror Tunnel (concentric mirror rings)
+- Swirl Vortex (per-pixel polar UV warp)
+- Slit Scan (ring buffer of frames)
+- Stardust (380-particle system s motion trails)
+- Datamosh (random freeze + RGB tear)
+- RGB Delay (channel-separated time delay)
+- Sci-Fi Scanner (accumulator-based scan band)
+- Vignette + Film Grain overlay
+
+**Web APIs:**
+- MediaDevices API — webcam capture s error handling
+- FileReader API — image upload + drag & drop
+- Google Fonts — Space Grotesk
+
 **Žiadne závislosti.** Žiadny npm, žiadny build step. Jeden súbor `index.html`.
 
 ---
@@ -173,9 +179,11 @@ HTML5 + CSS3 + JavaScript (ES2020+)
 ---
 
 ## 📁 Štruktúra repozitára
-├── index.html       ← celá aplikácia (HTML + CSS + JS + GLSL)
-├── thumbnail.png    ← náhľad pre portál (1000 × 1000 px)
-└── README.md        ← tento súbor
+
+- `index.html` — celá aplikácia (HTML + CSS + JS + GLSL)
+- `thumbnail.png` — náhľad pre portál (1000 × 1000 px)
+- `README.md` — tento súbor
+
 ---
 
 ## 🧩 Zaradenie do portálu B-MSAP
