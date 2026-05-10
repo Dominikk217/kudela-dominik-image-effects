@@ -11,19 +11,34 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
   --bg:#0a0a0a;--glass:rgba(255,255,255,0.05);--gb:rgba(255,255,255,0.1);
-  --a1:#a855f7;--a2:#06b6d4;--fn:'Space Grotesk',system-ui,sans-serif;
+  --a1:#a855f7;--a2:#06b6d4;--a3:#ec4899;--fn:'Space Grotesk',system-ui,sans-serif;
 }
-body{background:var(--bg);color:#fff;font-family:var(--fn);
+body{background:radial-gradient(ellipse at top,#13131f 0%,#0a0a0a 60%,#050507 100%);
+  color:#fff;font-family:var(--fn);
   height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none;
   transition:background .3s,color .3s;}
 
+/* ── Animated background grid ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(168,85,247,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(168,85,247,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);
+}
+
 /* ══ LIGHT MODE ══ */
-body.light{background:#eef0f5;color:#111;}
+body.light{background:radial-gradient(ellipse at top,#f3f5fb 0%,#eef0f5 60%,#e4e6ee 100%);color:#111;}
+body.light::before{background-image:
+  linear-gradient(rgba(108,40,200,0.05) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(108,40,200,0.05) 1px,transparent 1px);}
 body.light .back-btn{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.12);color:rgba(0,0,0,0.78);}
 body.light .back-btn:hover{background:rgba(0,0,0,0.1);color:#000;}
 body.light header p{color:rgba(0,0,0,0.4);}
-body.light .canvas-area{background:#dfe1ea;}
-body.light .controls{background:rgba(230,232,240,0.95);border-top-color:rgba(0,0,0,0.09);}
+body.light .canvas-area{background:transparent;}
+body.light .controls{background:rgba(230,232,240,0.92);border-top-color:rgba(0,0,0,0.09);}
 body.light .fx-btn{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.1);color:rgba(0,0,0,0.55);}
 body.light .fx-btn:hover{background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.4);color:rgba(0,0,0,0.85);}
 body.light .fx-btn.active{background:rgba(168,85,247,0.14);border-color:rgba(168,85,247,0.6);color:#6c28c8;box-shadow:0 0 12px rgba(168,85,247,0.15);}
@@ -43,58 +58,88 @@ body.light .hub-btn:hover{background:rgba(168,85,247,0.2);color:#111;}
 body.light .hub-hint{color:rgba(0,0,0,0.3);}
 body.light .reset-btn{background:rgba(240,242,248,0.88);border-color:rgba(0,0,0,0.2);color:rgba(0,0,0,0.5);}
 body.light .reset-btn:hover{background:rgba(200,50,50,0.75);border-color:rgba(255,80,80,0.5);color:#fff;}
-body.light .theme-toggle{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.12);color:#333;}
-body.light .theme-toggle:hover{background:rgba(0,0,0,0.1);}
+body.light .theme-toggle,body.light .compare-toggle{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.12);color:#333;}
+body.light .theme-toggle:hover,body.light .compare-toggle:hover{background:rgba(0,0,0,0.1);}
 body.light .fx-btn.warp-running{background:rgba(168,85,247,0.18)!important;border-color:rgba(168,85,247,0.7)!important;color:#6c28c8!important;}
+body.light .tab-btn{background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.1);color:rgba(0,0,0,0.55);}
+body.light .tab-btn.active{background:rgba(168,85,247,0.14);border-color:rgba(168,85,247,0.55);color:#6c28c8;}
+body.light .fps-badge{background:rgba(255,255,255,0.7);color:#444;border-color:rgba(0,0,0,0.1);}
+body.light .compare-handle{background:rgba(255,255,255,0.95);}
 
 /* ── Back button ── */
 .back-btn{
   position:fixed;top:14px;left:14px;z-index:600;
-  background:rgba(255,255,255,0.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:rgba(255,255,255,0.07);backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
   border:1px solid var(--gb);border-radius:10px;padding:7px 14px;
   color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;font-family:var(--fn);
-  display:flex;align-items:center;gap:6px;transition:all .2s;
+  display:flex;align-items:center;gap:6px;transition:all .25s cubic-bezier(.4,.0,.2,1);
 }
-.back-btn:hover{background:rgba(255,255,255,0.13);color:#fff;}
+.back-btn:hover{background:rgba(255,255,255,0.13);color:#fff;transform:translateX(-2px);
+  box-shadow:0 4px 18px rgba(168,85,247,0.18);}
 
-/* ── Theme toggle ── */
-.theme-toggle{
-  position:fixed;top:14px;right:14px;z-index:600;
-  background:rgba(255,255,255,0.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+/* ── Top right buttons ── */
+.top-right{position:fixed;top:14px;right:14px;z-index:600;display:flex;gap:8px;}
+.theme-toggle,.compare-toggle{
+  background:rgba(255,255,255,0.07);backdrop-filter:blur(14px) saturate(150%);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);
   border:1px solid var(--gb);border-radius:10px;
-  width:36px;height:36px;font-size:17px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .2s;color:#fff;
+  height:36px;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .25s;color:#fff;font-family:var(--fn);font-weight:700;
 }
-.theme-toggle:hover{background:rgba(255,255,255,0.13);}
+.theme-toggle{width:36px;font-size:17px;}
+.compare-toggle{padding:0 14px;font-size:11px;letter-spacing:1px;}
+.theme-toggle:hover,.compare-toggle:hover{background:rgba(255,255,255,0.13);
+  box-shadow:0 4px 16px rgba(168,85,247,0.2);}
+.compare-toggle.active{background:rgba(168,85,247,0.22);border-color:rgba(168,85,247,0.7);
+  color:#fff;box-shadow:0 0 18px rgba(168,85,247,0.35);}
 
 /* ── Snapshot flash ── */
-#flash{
-  position:fixed;inset:0;background:#fff;opacity:0;
-  pointer-events:none;z-index:999;transition:opacity .55s ease-out;
-}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;
+  pointer-events:none;z-index:999;transition:opacity .55s ease-out;}
 
 /* ── Help tooltip ── */
-.help-wrap{
-  position:fixed;bottom:72px;right:16px;z-index:400;
-  display:flex;align-items:center;
-}
+.help-wrap{position:fixed;bottom:12px;right:16px;z-index:400;display:flex;align-items:center;}
 .help-ico{
   width:28px;height:28px;border-radius:50%;
   border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);
   backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:800;color:rgba(255,255,255,0.55);cursor:default;transition:all .2s;
 }
-.help-wrap:hover .help-ico{border-color:rgba(168,85,247,0.7);color:var(--a1);background:rgba(168,85,247,0.1);}
+.help-wrap:hover .help-ico{border-color:rgba(168,85,247,0.7);color:var(--a1);background:rgba(168,85,247,0.1);
+  box-shadow:0 0 14px rgba(168,85,247,0.4);}
 .help-tip{
   display:none;position:absolute;right:36px;bottom:0;
   background:rgba(12,12,18,0.96);backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,0.14);border-radius:11px;padding:13px 15px;
-  font-size:12px;line-height:1.65;color:rgba(255,255,255,0.92);
-  width:240px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  border:1px solid rgba(255,255,255,0.14);border-radius:11px;padding:14px 16px;
+  font-size:11.5px;line-height:1.6;color:rgba(255,255,255,0.92);
+  width:320px;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.6);
 }
 .help-wrap:hover .help-tip{display:block;}
 .tip-sub{color:rgba(255,255,255,0.72);}
+.tip-h{display:block;font-weight:800;font-size:10px;letter-spacing:1.5px;
+  color:rgba(168,85,247,0.95);margin:8px 0 3px;text-transform:uppercase;}
+.tip-h:first-child{margin-top:0;}
+.help-tip kbd{display:inline-block;font-family:var(--fn);font-weight:700;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:4px;padding:0 5px;font-size:10px;}
+
+/* ── FPS Badge ── */
+.fps-badge{
+  position:absolute;top:10px;left:10px;z-index:8;
+  background:rgba(8,8,14,0.7);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  padding:5px 10px;font-size:11px;font-weight:700;letter-spacing:.5px;
+  color:rgba(255,255,255,0.85);font-family:'Space Grotesk',monospace;
+  display:none;pointer-events:none;
+}
+.fps-badge.visible{display:flex;align-items:center;gap:6px;}
+.fps-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;
+  box-shadow:0 0 6px #22c55e;animation:fpspulse 1.5s ease-in-out infinite;}
+.fps-dot.med{background:#eab308;box-shadow:0 0 6px #eab308;}
+.fps-dot.low{background:#ef4444;box-shadow:0 0 6px #ef4444;}
+@keyframes fpspulse{50%{opacity:.4;}}
 
 /* ── Drop zone ── */
 .drop-zone{
@@ -107,183 +152,297 @@ body.light .fx-btn.warp-running{background:rgba(168,85,247,0.18)!important;borde
 .drop-zone.active{display:flex;}
 
 /* ── Header ── */
-header{padding:13px 20px 5px;text-align:center;}
+header{padding:13px 20px 5px;text-align:center;position:relative;z-index:1;}
 header h1{
   font-size:clamp(1.1rem,3vw,1.65rem);font-weight:800;
-  background:linear-gradient(135deg,var(--a1),var(--a2));
+  background:linear-gradient(135deg,var(--a1) 0%,var(--a3) 50%,var(--a2) 100%);
+  background-size:200% 200%;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   letter-spacing:5px;text-transform:uppercase;
+  animation:gradShift 8s ease-in-out infinite;
 }
+@keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
 header p{font-size:.6rem;color:rgba(255,255,255,0.25);letter-spacing:3px;margin-top:2px;transition:color .3s;}
 
 /* ── Canvas area ── */
 .canvas-area{
   flex:1;display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;cursor:crosshair;transition:background .3s;
+  position:relative;overflow:hidden;cursor:crosshair;transition:background .3s;z-index:1;
 }
 
 /* ── Empty state hub ── */
 .empty-state{
   position:absolute;display:flex;flex-direction:column;
-  align-items:center;gap:12px;transition:opacity .4s;
+  align-items:center;gap:14px;transition:opacity .4s;
 }
 .empty-state.hidden{opacity:0;pointer-events:none;}
 .hub-ring{
-  width:96px;height:96px;border-radius:50%;
+  width:104px;height:104px;border-radius:50%;
   border:2px solid rgba(168,85,247,0.38);
   display:flex;align-items:center;justify-content:center;
-  font-size:2.4rem;cursor:pointer;transition:all .3s;
+  font-size:2.5rem;cursor:pointer;transition:all .3s;
   animation:rpulse 2.6s ease-in-out infinite;
+  position:relative;
+}
+.hub-ring::before{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:1px solid rgba(168,85,247,0.18);
+  animation:rpulse2 2.6s ease-in-out infinite .4s;
 }
 .hub-ring:hover{
   border-color:var(--a1);
-  box-shadow:0 0 28px rgba(168,85,247,0.5),inset 0 0 14px rgba(168,85,247,0.1);
+  box-shadow:0 0 36px rgba(168,85,247,0.55),inset 0 0 18px rgba(168,85,247,0.12);
   transform:scale(1.07);animation:none;
 }
+.hub-ring:hover::before{border-color:rgba(168,85,247,0.4);animation:none;}
 @keyframes rpulse{
   0%,100%{border-color:rgba(168,85,247,0.32);box-shadow:none;}
-  50%{border-color:rgba(168,85,247,0.85);box-shadow:0 0 22px rgba(168,85,247,0.28);}
+  50%{border-color:rgba(168,85,247,0.85);box-shadow:0 0 26px rgba(168,85,247,0.32);}
+}
+@keyframes rpulse2{
+  0%,100%{border-color:rgba(168,85,247,0.12);transform:scale(1);}
+  50%{border-color:rgba(168,85,247,0.4);transform:scale(1.06);}
 }
 .hub-btns{display:flex;gap:9px;}
 .hub-btn{
   background:rgba(168,85,247,0.09);border:1px solid rgba(168,85,247,0.28);
-  border-radius:8px;padding:7px 13px;color:rgba(255,255,255,0.65);
+  border-radius:8px;padding:8px 14px;color:rgba(255,255,255,0.72);
   cursor:pointer;font-size:12px;font-weight:700;font-family:var(--fn);
-  letter-spacing:.3px;transition:all .18s;
+  letter-spacing:.3px;transition:all .2s;
 }
-.hub-btn:hover{background:rgba(168,85,247,0.22);border-color:rgba(168,85,247,0.7);color:#fff;}
+.hub-btn:hover{background:rgba(168,85,247,0.22);border-color:rgba(168,85,247,0.7);color:#fff;
+  transform:translateY(-1px);box-shadow:0 6px 16px rgba(168,85,247,0.25);}
 .hub-hint{font-size:.72rem;color:rgba(255,255,255,0.22);letter-spacing:.5px;text-align:center;}
 
 /* ── Canvas wrapper (stack) ── */
 .canvas-wrap{
   position:relative;display:none;flex-shrink:0;
+  border-radius:8px;overflow:hidden;
+  box-shadow:0 12px 48px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.06);
 }
 .canvas-wrap canvas{
   position:absolute;inset:0;width:100%;height:100%;border-radius:6px;display:none;
 }
 #overlayCanvas{display:block !important;pointer-events:none;z-index:5;}
 
+/* ── Before/After clip overlay ── */
+.compare-orig{
+  position:absolute;inset:0;display:none;z-index:6;pointer-events:none;
+  clip-path:inset(0 0 0 0);
+}
+.compare-orig.visible{display:block;}
+.compare-orig canvas{position:absolute;inset:0;width:100%;height:100%;display:block !important;}
+.compare-handle{
+  position:absolute;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.95) 0%,rgba(168,85,247,0.95) 50%,rgba(255,255,255,0.95) 100%);
+  z-index:7;pointer-events:auto;cursor:ew-resize;
+  box-shadow:0 0 14px rgba(168,85,247,0.7);display:none;
+}
+.compare-handle.visible{display:block;}
+.compare-handle::after{
+  content:'⇆';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(15,15,22,0.92);border:2px solid rgba(168,85,247,0.85);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;font-weight:800;
+  box-shadow:0 0 16px rgba(168,85,247,0.55);
+}
+.compare-label{
+  position:absolute;top:46px;padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:800;letter-spacing:1.5px;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.15);color:#fff;z-index:7;display:none;
+  pointer-events:none;
+}
+.compare-label.visible{display:block;}
+.compare-label.before{left:14px;border-color:rgba(168,85,247,0.5);color:#d09af8;}
+.compare-label.after{right:14px;border-color:rgba(6,182,212,0.5);color:#67e8f9;}
+
 /* ── Reset (X) button ── */
 .reset-btn{
   position:absolute;top:8px;right:8px;z-index:10;
-  width:26px;height:26px;border-radius:50%;
+  width:28px;height:28px;border-radius:50%;
   border:1px solid rgba(255,255,255,0.2);
   background:rgba(8,8,12,0.72);backdrop-filter:blur(8px);
   color:rgba(255,255,255,0.55);font-size:15px;line-height:1;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .2s;font-family:var(--fn);
 }
-.reset-btn:hover{background:rgba(200,50,50,0.75);border-color:rgba(255,80,80,0.5);color:#fff;}
+.reset-btn:hover{background:rgba(200,50,50,0.75);border-color:rgba(255,80,80,0.5);color:#fff;
+  transform:rotate(90deg);}
 
 /* ── Controls panel ── */
 .controls{
-  padding:9px 14px 13px;display:flex;flex-direction:column;gap:8px;
-  background:rgba(10,10,16,0.92);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  padding:8px 14px 12px;display:flex;flex-direction:column;gap:7px;
+  background:rgba(10,10,16,0.88);
+  backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);
   border-top:1px solid rgba(255,255,255,0.07);
+  position:relative;z-index:2;
   transition:background .3s,border-color .3s;
 }
-.fx-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+.controls::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(168,85,247,0.4),transparent);
+}
+
+/* ── Tabs ── */
+.tabs-row{display:flex;gap:6px;justify-content:center;}
+.tab-btn{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  border-radius:7px;padding:5px 14px;color:rgba(255,255,255,0.5);
+  cursor:pointer;font-size:10.5px;font-weight:800;letter-spacing:1.4px;
+  font-family:var(--fn);transition:all .2s;text-transform:uppercase;
+}
+.tab-btn:hover{color:rgba(255,255,255,0.85);background:rgba(168,85,247,0.08);}
+.tab-btn.active{background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.55);
+  color:#fff;box-shadow:0 0 12px rgba(168,85,247,0.25);}
+.tab-btn.cam-only.active{background:rgba(236,72,153,0.18);border-color:rgba(236,72,153,0.55);
+  box-shadow:0 0 12px rgba(236,72,153,0.25);}
+
+/* ── FX rows ── */
+.fx-row{display:none;gap:6px;justify-content:center;flex-wrap:wrap;
+  align-content:center;align-items:stretch;
+  padding:2px 0;max-width:1200px;margin:0 auto;}
+.fx-row.active{display:flex;}
+
 .fx-btn{
   position:relative;
-  background:var(--glass);border:1px solid var(--gb);border-radius:8px;
-  padding:7px 14px;color:rgba(255,255,255,0.48);cursor:pointer;
-  font-size:12px;font-weight:700;letter-spacing:.4px;font-family:var(--fn);transition:all .18s;
+  background:var(--glass);border:1px solid var(--gb);border-radius:7px;
+  padding:6px 10px;color:rgba(255,255,255,0.55);cursor:pointer;
+  font-size:10.5px;font-weight:700;letter-spacing:.25px;font-family:var(--fn);
+  transition:all .18s cubic-bezier(.4,.0,.2,1);overflow:hidden;
+  white-space:nowrap;flex:0 1 auto;
 }
-.fx-btn:hover{background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.35);
-  color:rgba(255,255,255,0.85);transform:translateY(-1px);}
-.fx-btn.active{background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.65);
-  color:#fff;box-shadow:0 0 15px rgba(168,85,247,0.2);}
-/* Time Warp scanning state — purple to stay on theme */
+.fx-btn::before{
+  content:'';position:absolute;inset:0;border-radius:7px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(6,182,212,0.18));
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.fx-btn:hover{border-color:rgba(168,85,247,0.45);color:rgba(255,255,255,0.95);
+  transform:translateY(-1px);box-shadow:0 4px 14px rgba(168,85,247,0.18);}
+.fx-btn:hover::before{opacity:.6;}
+.fx-btn.active{background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.7);
+  color:#fff;box-shadow:0 0 16px rgba(168,85,247,0.32),inset 0 0 8px rgba(168,85,247,0.12);
+  animation:activeBtnPulse 2.4s ease-in-out infinite;}
+@keyframes activeBtnPulse{
+  0%,100%{box-shadow:0 0 16px rgba(168,85,247,0.32),inset 0 0 8px rgba(168,85,247,0.12);}
+  50%{box-shadow:0 0 22px rgba(168,85,247,0.5),inset 0 0 12px rgba(168,85,247,0.18);}
+}
+.fx-row.cam-row .fx-btn.active{background:rgba(236,72,153,0.18);border-color:rgba(236,72,153,0.7);
+  box-shadow:0 0 16px rgba(236,72,153,0.32),inset 0 0 8px rgba(236,72,153,0.12);
+  animation:activeBtnPulseCam 2.4s ease-in-out infinite;}
+@keyframes activeBtnPulseCam{
+  0%,100%{box-shadow:0 0 16px rgba(236,72,153,0.32),inset 0 0 8px rgba(236,72,153,0.12);}
+  50%{box-shadow:0 0 22px rgba(236,72,153,0.5),inset 0 0 12px rgba(236,72,153,0.18);}
+}
 .fx-btn.warp-running{
-  background:rgba(168,85,247,0.22)!important;
-  border-color:rgba(168,85,247,0.8)!important;
-  color:#d09af8!important;
-  animation:wscan .9s ease-in-out infinite;
+  background:rgba(236,72,153,0.22)!important;
+  border-color:rgba(236,72,153,0.85)!important;
+  color:#f9b6d8!important;animation:wscan .9s ease-in-out infinite!important;
 }
 @keyframes wscan{
-  0%,100%{box-shadow:0 0 8px rgba(168,85,247,0.2);}
-  50%{box-shadow:0 0 24px rgba(168,85,247,0.55);}
+  0%,100%{box-shadow:0 0 8px rgba(236,72,153,0.25);}
+  50%{box-shadow:0 0 26px rgba(236,72,153,0.65);}
 }
-/* Tooltip — riešené cez JS #fx-tooltip (position:fixed obchádza backdrop-filter stacking context) */
-/* CSS ::after sa NEPOUŽÍVA — bolo clippované compositing layer-om controls panelu */
+.fx-btn.cam-disabled{opacity:.32;cursor:not-allowed;filter:grayscale(.4);}
+.fx-btn.cam-disabled:hover{transform:none;border-color:var(--gb);box-shadow:none;}
+.fx-btn.cam-disabled::after{content:'📷';position:absolute;top:-4px;right:-4px;font-size:9px;
+  background:rgba(236,72,153,0.85);border-radius:50%;width:14px;height:14px;
+  display:flex;align-items:center;justify-content:center;}
+
 #fx-tooltip{
   position:fixed;z-index:9999;
   background:#080812;color:#fff;
   border:1px solid rgba(255,255,255,0.18);
   border-radius:9px;padding:9px 13px;
   font-size:11px;font-weight:600;line-height:1.55;
-  width:200px;text-align:center;
-  box-shadow:0 6px 24px rgba(0,0,0,0.7);
-  pointer-events:none;
-  font-family:var(--fn);
+  width:210px;text-align:center;
+  box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 18px rgba(168,85,247,0.2);
+  pointer-events:none;font-family:var(--fn);
   opacity:0;transition:opacity .18s ease;
 }
 #fx-tooltip.tt-show{opacity:1;}
 body.light #fx-tooltip{background:#fff;color:#111;border-color:rgba(0,0,0,0.14);box-shadow:0 4px 18px rgba(0,0,0,0.18);}
+
 .act-row{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;}
 .act-btn{
   background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.22);
-  border-radius:8px;padding:7px 16px;color:rgba(6,182,212,0.78);
-  cursor:pointer;font-size:12px;font-weight:700;font-family:var(--fn);transition:all .18s;
+  border-radius:8px;padding:7px 16px;color:rgba(6,182,212,0.85);
+  cursor:pointer;font-size:12px;font-weight:700;font-family:var(--fn);transition:all .2s;
 }
-.act-btn:hover,.act-btn.active{background:rgba(6,182,212,0.16);border-color:rgba(6,182,212,0.55);color:#06b6d4;}
+.act-btn:hover,.act-btn.active{background:rgba(6,182,212,0.16);border-color:rgba(6,182,212,0.55);color:#06b6d4;
+  box-shadow:0 0 14px rgba(6,182,212,0.25);}
 .slider-wrap{
   display:flex;align-items:center;gap:10px;background:var(--glass);
   border:1px solid var(--gb);border-radius:8px;padding:7px 14px;
 }
-.slider-label{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.33);}
+.slider-label{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.45);}
 input[type=range]{
   -webkit-appearance:none;width:110px;height:3px;border-radius:2px;
   background:linear-gradient(to right,var(--a1),var(--a2));outline:none;cursor:pointer;
 }
 input[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
-  background:#fff;box-shadow:0 0 7px rgba(168,85,247,.9);
+  background:#fff;box-shadow:0 0 9px rgba(168,85,247,.95);cursor:grab;
 }
+input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;}
 .slider-val{font-size:11px;color:var(--a1);font-weight:700;min-width:28px;}
 .save-btn{
   background:var(--glass);border:1px solid var(--gb);border-radius:8px;
-  padding:7px 14px;color:rgba(255,255,255,0.42);cursor:pointer;
-  font-size:12px;font-weight:700;font-family:var(--fn);transition:all .18s;
+  padding:7px 14px;color:rgba(255,255,255,0.5);cursor:pointer;
+  font-size:12px;font-weight:700;font-family:var(--fn);transition:all .2s;
 }
-.save-btn:hover{background:rgba(255,255,255,0.09);color:#fff;}
+.save-btn:hover{background:rgba(255,255,255,0.09);color:#fff;
+  box-shadow:0 0 14px rgba(168,85,247,0.22);}
 #fileInput{display:none;}
 </style>
 </head>
 <body>
 
-<!-- ═══ BACK BUTTON (required) ═══ -->
 <a href="/" class="back-btn">← Späť na portál</a>
 
-<!-- ═══ THEME TOGGLE ═══ -->
-<button id="themeToggle" class="theme-toggle" title="Prepnúť tému">☀️</button>
+<div class="top-right">
+  <button id="compareToggle" class="compare-toggle" title="Before / After porovnanie">⇆ COMPARE</button>
+  <button id="themeToggle" class="theme-toggle" title="Prepnúť tému">☀️</button>
+</div>
 
-<!-- ═══ SNAPSHOT FLASH ═══ -->
 <div id="flash"></div>
-<!-- ═══ JS TOOLTIP (position:fixed — nie je clippovaný backdrop-filter) ═══ -->
 <div id="fx-tooltip"></div>
 
-<!-- ═══ HELP TOOLTIP ═══ -->
 <div class="help-wrap">
   <div class="help-ico">?</div>
   <div class="help-tip">
-    Zapni kameru alebo nahraj fotku a experimentuj s efektmi cez slidery.<br><br>
-    <span class="tip-sub">🖱 Pohyb myši — Kaleidoskop &amp; Time Warp<br>
-    🖱 Koliesko — intenzita</span>
+    Real-time foto/video efekty engine. 30 efektov v dvoch kategóriách.
+
+    <span class="tip-h">Zdroj</span>
+    <span class="tip-sub">📷 KAMERA — webkamera (vyžaduje povolenie)<br>
+    📁 UPLOAD — JPG / PNG / WEBP, alebo drag &amp; drop<br>
+    <kbd>×</kbd> v rohu — reset zdroja</span>
+
+    <span class="tip-h">Ovládanie</span>
+    <span class="tip-sub">🖱 Pohyb myši — ovláda Kaleidoskop, Time Warp, RGB Split<br>
+    🖱 Koliesko — mení intenzitu (alebo slider dole)<br>
+    <kbd>⇆ COMPARE</kbd> — pred/po slider, ťahaj rukoväť<br>
+    <kbd>☀️/🌙</kbd> — light / dark mode</span>
+
+    <span class="tip-h">Kategórie efektov</span>
+    <span class="tip-sub">📷+🖼️ OBRÁZOK + KAMERA — 21 efektov pre oba zdroje<br>
+    🎬 IBA KAMERA — 9 real-time efektov závislých od pohybu<br>
+    Ikona 📷 na tlačidle = vyžaduje aktívnu kameru</span>
+
+    <span class="tip-h">Špeciálne</span>
+    <span class="tip-sub">⏱ TIME WARP — klikni 2× pre spustenie skenu<br>
+    💾 ULOŽIŤ — stiahne PNG s aplikovaným efektom</span>
   </div>
 </div>
 
-<!-- ═══ DRAG & DROP OVERLAY ═══ -->
 <div class="drop-zone" id="dropZone">🎨 PUSTIŤ OBRÁZOK SEM</div>
 
-<!-- ═══ HEADER ═══ -->
 <header>
   <h1>IMAGE VISION STUDIO</h1>
   <p>REAL-TIME IMAGE EFFECTS ENGINE</p>
 </header>
 
-<!-- ═══ CANVAS AREA ═══ -->
 <div class="canvas-area" id="canvasArea">
   <div class="empty-state" id="emptyState">
     <div class="hub-ring" id="hubRing">📷</div>
@@ -297,22 +456,59 @@ input[type=range]::-webkit-slider-thumb{
     <canvas id="glCanvas"      width="1" height="1"></canvas>
     <canvas id="asciiCanvas"   width="1" height="1"></canvas>
     <canvas id="warpCanvas"    width="1" height="1"></canvas>
+    <canvas id="fxCanvas"      width="1" height="1"></canvas>
     <canvas id="overlayCanvas" width="1" height="1"></canvas>
+    <div class="compare-orig" id="compareOrig"><canvas id="origCanvas" width="1" height="1"></canvas></div>
+    <div class="compare-handle" id="compareHandle"></div>
+    <div class="compare-label before" id="cmpLabelBefore">PRED</div>
+    <div class="compare-label after" id="cmpLabelAfter">PO</div>
+    <div class="fps-badge" id="fpsBadge"><span class="fps-dot" id="fpsDot"></span><span id="fpsText">— FPS</span></div>
     <button class="reset-btn" id="resetBtn" title="Resetovať">×</button>
   </div>
 </div>
 
-<!-- ═══ CONTROLS ═══ -->
 <div class="controls">
-  <div class="fx-row">
-    <button class="fx-btn active" data-fx="glitch">⚡ CYBER GLITCH</button>
-    <button class="fx-btn" data-fx="neon">🔮 NEON EDGE</button>
-    <button class="fx-btn" data-fx="thermal">🌡️ THERMAL</button>
-    <button class="fx-btn" data-fx="ascii">📟 ASCII ART</button>
-    <button class="fx-btn" data-fx="kaleido">🌀 KALEIDOSKOP</button>
-    <button class="fx-btn" data-fx="warp" data-tooltip="Klikni znovu pre spustenie skenu. Najlepšie funguje s webkamerou.">⏱ TIME WARP</button>
-    <button class="fx-btn" data-fx="oil">🎨 OIL PAINT</button>
+  <div class="tabs-row">
+    <button class="tab-btn active" data-tab="universal">📷+🖼️ OBRÁZOK + KAMERA</button>
+    <button class="tab-btn cam-only" data-tab="cam">🎬 IBA KAMERA</button>
   </div>
+
+  <div class="fx-row active" id="fxRowUniversal">
+    <button class="fx-btn active" data-fx="glitch" data-tooltip="Cyber glitch — náhodné horizontálne posuny pásov, RGB split a digitálny šum, akoby pokazená dátová prenoska.">⚡ CYBER GLITCH</button>
+    <button class="fx-btn" data-fx="neon" data-tooltip="Sobel edge detection s rotujúcou neónovou paletou — okraje obrazu žiaria farebným svetlom na čiernom pozadí.">🔮 NEON EDGE</button>
+    <button class="fx-btn" data-fx="thermal" data-tooltip="Termálne videnie — luminance sa mapuje na teplotnú paletu od modrej cez fialovú a oranžovú k žltej.">🌡️ THERMAL</button>
+    <button class="fx-btn" data-fx="ascii" data-tooltip="Mozaika ASCII znakov — každá bunka nesie znak podľa jasu a farbu pôvodného pixelu.">📟 ASCII ART</button>
+    <button class="fx-btn" data-fx="kaleido" data-tooltip="Radiálne zrkadlenie — N segmentov rotuje okolo stredu. Pohyb myši ovláda rotáciu, slider počet segmentov.">🌀 KALEIDOSKOP</button>
+    <button class="fx-btn" data-fx="oil" data-tooltip="Kuwahara filter — vyhladenie do oblastí konštantnej farby s ostrými hranicami, pripomína olejomaľbu.">🎨 OIL PAINT</button>
+    <button class="fx-btn" data-fx="pixelate" data-tooltip="Hard pixelácia do rovnakých blokov. Slider riadi veľkosť blokov od jemnej po extrémne lo-fi.">🔲 PIXELATE</button>
+    <button class="fx-btn" data-fx="sketch" data-tooltip="Edge detection invertovaný do bielej + diagonálne šrafovanie — vyzerá ako ceruzková kresba.">✏️ SKETCH</button>
+    <button class="fx-btn" data-fx="comic" data-tooltip="Kvantizácia farieb na 3–8 úrovní + čierne kontúry — cell-shaded comic book look.">💥 COMIC BOOK</button>
+    <button class="fx-btn" data-fx="vhs" data-tooltip="VHS tape artefakty — chroma smear, tracking line, dropout pásy, magenta cast a snow grain.">📼 VHS RETRO</button>
+    <button class="fx-btn" data-fx="crt" data-tooltip="CRT obrazovka — barrel distortion, Trinitron RGB sub-pixel mask, phosphor glow, scanlines a curved corners.">🖥️ CRT SCREEN</button>
+    <button class="fx-btn" data-fx="blur" data-tooltip="Radiálne depth-of-field — stred ostrý, okraje rozmazané. Slider mení šírku focus zóny.">💫 BLUR FOCUS</button>
+    <button class="fx-btn" data-fx="night" data-tooltip="Nočné videnie — gamma boost, edge enhancement, zelený phosphor tint, šum a vignette.">🌙 NIGHT VISION</button>
+    <button class="fx-btn" data-fx="rgbsplit" data-tooltip="Chromatic aberration — R a B kanály sa rozchádzajú v opačných smeroch. Smer ovláda pozícia myši.">🌈 RGB SPLIT</button>
+    <button class="fx-btn" data-fx="posterize" data-tooltip="Kvantizácia každého RGB kanálu na 2–12 úrovní. Plagátový efekt s ostrými farebnými prechodmi.">🎭 POSTERIZE</button>
+    <button class="fx-btn" data-fx="duotone" data-tooltip="Cyklujúce tritone palety (Sunset, Ocean, Lava, Forest, Violet) s plynulým prechodom medzi nimi.">🎴 DUOTONE</button>
+    <button class="fx-btn" data-fx="hologram" data-tooltip="Cyan phosphor tint, pohyblivé scan páskovanie, pulzujúce horizontálne pruhy a flicker — sci-fi hologram.">👽 HOLOGRAM</button>
+    <button class="fx-btn" data-fx="matrix" data-tooltip="Padajúce zelené japonské znaky a číslice cez stmavnutý zdrojový obraz — Matrix code rain.">💚 MATRIX RAIN</button>
+    <button class="fx-btn" data-fx="liquid" data-tooltip="Multi-octave sine waves zvlnia obraz ako vodnú hladinu, plus animované kaustiky a aqua tint.">💧 LIQUID WAVE</button>
+    <button class="fx-btn" data-fx="emboss" data-tooltip="3D reliéf — luminance sa transformuje na vystúpený povrch ako mince alebo socha.">🪨 EMBOSS</button>
+    <button class="fx-btn" data-fx="halftone" data-tooltip="Newspaper-style tlačový raster — bodky veľkosťou podľa jasu, krémový papier a CMYK misregister.">📰 HALFTONE</button>
+  </div>
+
+  <div class="fx-row cam-row" id="fxRowCam">
+    <button class="fx-btn" data-fx="warp" data-tooltip="Klikni znovu pre spustenie skenu — postupne zachytí obraz líniu po línii a zmrazí ho v jeden časový kompozit.">⏱ TIME WARP</button>
+    <button class="fx-btn" data-fx="mirror" data-tooltip="Vertikálne (a pri vyššej intenzite aj horizontálne) zrkadlenie. Vytvára Rorschach-like symetriu.">🪞 MIRROR DREAM</button>
+    <button class="fx-btn" data-fx="tunnel" data-tooltip="Recursive zoom mirror — obraz sa zmenšuje a vrství do seba, vytvára nekonečný tunelový pohľad.">🌌 MIRROR TUNNEL</button>
+    <button class="fx-btn" data-fx="swirl" data-tooltip="Radiálne víriace skreslenie. Pixely v okrajoch rotujú okolo stredu, animovaný vortex.">🌪 SWIRL VORTEX</button>
+    <button class="fx-btn" data-fx="slit" data-tooltip="Každý vertikálny pás je z iného času — surrealistické smerovanie pohybu.">🌊 SLIT SCAN</button>
+    <button class="fx-btn" data-fx="stardust" data-tooltip="Z jasných pixelov vystreľujú svietiace iskry s farebnými stopami. Slider riadi hustotu prachu.">✨ STARDUST</button>
+    <button class="fx-btn" data-fx="datamosh" data-tooltip="Náhodné freezy framu s displacement bands, RGB tear cez screen blend a color scrambles — vyzerá ako poškodené video.">💀 DATAMOSH</button>
+    <button class="fx-btn" data-fx="rgbdelay" data-tooltip="R/G/B kanály z rôznych časových delay (red=teraz, green=stredne, blue=najstarší) — pohyb zanecháva farebné stopy.">🌈 RGB DELAY</button>
+    <button class="fx-btn" data-fx="scanner" data-tooltip="Sci-fi sken — desaturuje base, scan band reveláciu farieb akumuluje a postupne nechá vyblednúť do grayscale.">📡 SCI-FI SCANNER</button>
+  </div>
+
   <div class="act-row">
     <button class="act-btn" id="camBtn">📷 KAMERA</button>
     <button class="act-btn" id="uploadBtn">📁 UPLOAD</button>
@@ -329,13 +525,15 @@ input[type=range]::-webkit-slider-thumb{
 
 <script>
 // ================================================================
-//  IMAGE VISION STUDIO — Client-side WebGL + Canvas Image Engine
+//  IMAGE VISION STUDIO — Enhanced Edition
 // ================================================================
 
 const glCanvas      = document.getElementById('glCanvas');
 const asciiCanvas   = document.getElementById('asciiCanvas');
 const warpCanvas    = document.getElementById('warpCanvas');
+const fxCanvas      = document.getElementById('fxCanvas');
 const overlayCanvas = document.getElementById('overlayCanvas');
+const origCanvas    = document.getElementById('origCanvas');
 const canvasWrap    = document.getElementById('canvasWrap');
 const canvasArea    = document.getElementById('canvasArea');
 const emptyState    = document.getElementById('emptyState');
@@ -343,9 +541,17 @@ const emptyState    = document.getElementById('emptyState');
 const gl         = glCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 const asciiCtx   = asciiCanvas.getContext('2d');
 const warpCtx    = warpCanvas.getContext('2d');
+const fxCtx      = fxCanvas.getContext('2d');
 const overlayCtx = overlayCanvas.getContext('2d');
+const origCtx    = origCanvas.getContext('2d');
 
 if(!gl) alert('WebGL nie je dostupný v tomto prehliadači.');
+
+// Effect categorization
+const FX_UNIVERSAL = new Set(['glitch','neon','thermal','ascii','kaleido','oil','pixelate','sketch','comic','vhs','crt','blur','night','rgbsplit','posterize','duotone','hologram','matrix','liquid','emboss','halftone']);
+const FX_CAM_ONLY  = new Set(['warp','mirror','tunnel','swirl','slit','stardust','datamosh','rgbdelay','scanner']);
+const FX_GL        = new Set(['glitch','neon','thermal','kaleido','oil','pixelate','sketch','comic','vhs','crt','blur','night','rgbsplit','posterize','duotone','hologram','liquid','emboss','halftone']);
+const FX_CANVAS2D  = new Set(['ascii','matrix','warp','mirror','tunnel','swirl','slit','stardust','datamosh','rgbdelay','scanner']);
 
 let currentFx  = 'glitch';
 let intensity  = 0.5;
@@ -359,6 +565,8 @@ let imgEl      = null;
 let tex        = null;
 let programs   = {};
 let frameCount = 0;
+let compareMode = false;
+let compareSplit = 0.5;
 
 // Time Warp state
 const warpFreeze    = document.createElement('canvas');
@@ -369,6 +577,37 @@ let warpPos     = 0;
 let warpPrevPos = 0;
 let warpReady   = false;
 let warpRunning = false;
+
+// Reusable working canvases
+const workA = document.createElement('canvas'); const workACtx = workA.getContext('2d');
+const workB = document.createElement('canvas'); const workBCtx = workB.getContext('2d');
+function ensureWorkSize(w,h){
+  if(workA.width!==w||workA.height!==h){workA.width=w;workA.height=h;}
+  if(workB.width!==w||workB.height!==h){workB.width=w;workB.height=h;}
+}
+// Slit Scan state
+const slitFrames = [];
+const SLIT_BUF_MAX = 60;
+// Stardust particle state
+const stardustParticles = [];
+const STARDUST_MAX = 380;
+// Mirror Tunnel buffer
+const tunnelTmp = document.createElement('canvas'); const tunnelTmpCtx = tunnelTmp.getContext('2d');
+// Swirl downsampled buffer
+const swirlBuf = document.createElement('canvas'); const swirlBufCtx = swirlBuf.getContext('2d');
+// Datamosh state
+let datamoshFreeze = null;
+let datamoshActive = false;
+let datamoshFreezeUntil = 0;
+// RGB Delay buffer
+const rgbDelayBuf = [];
+const RGB_BUF_MAX = 30;
+// Sci-fi Scanner accumulator (colored output that fades to grayscale)
+const scannerAcc = document.createElement('canvas'); const scannerAccCtx = scannerAcc.getContext('2d');
+// Matrix rain state
+let matrixDrops = [];
+let matrixCols  = 0;
+const MATRIX_CHARS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789';
 
 // Vignette + Grain
 const vigCanvas = document.createElement('canvas');
@@ -381,6 +620,14 @@ const grainData = grainCtx.createImageData(256, 256);
 // Shared sample buffer
 const offCanvas = document.createElement('canvas');
 const offCtx    = offCanvas.getContext('2d');
+
+// FPS tracking
+let fpsLastTime = performance.now();
+let fpsFrames = 0;
+let fpsValue = 0;
+const fpsBadge = document.getElementById('fpsBadge');
+const fpsDot   = document.getElementById('fpsDot');
+const fpsText  = document.getElementById('fpsText');
 
 // ================================================================
 //  GLSL SHADERS
@@ -464,9 +711,6 @@ void main(){
   gl_FragColor=texture2D(u_tex,clamp(newUV,0.,1.));
 }`;
 
-// ── Oil Painting — Kuwahara Filter ──
-// Hardcoded loop -4..4 (9x9=81 samples). Avoids #define macro issues in
-// some WebGL implementations. highp for precise variance calculation.
 const FRAG_OIL=`
 precision highp float;
 varying vec2 v_uv;
@@ -474,9 +718,8 @@ uniform sampler2D u_tex;
 uniform vec2 u_res;
 uniform float u_intensity;
 void main(){
-  // Krok škálovaný podľa min(w,h) → rovnaký vizuálny efekt na 720p aj 4K
   float minDim=min(u_res.x,u_res.y);
-  float s=(0.001+u_intensity*0.004)*minDim; // pixel krok = 0.1%–0.5% min-rozmeru
+  float s=(0.001+u_intensity*0.004)*minDim;
   vec2 px=vec2(s/u_res.x,s/u_res.y);
   float inR=4.5;
   vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.);
@@ -505,6 +748,369 @@ void main(){
   gl_FragColor=vec4(col,1.0);
 }`;
 
+const FRAG_PIXELATE=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+void main(){
+  float blocks=mix(220.,18.,u_intensity);
+  vec2 cell=vec2(blocks,blocks*u_res.y/u_res.x);
+  vec2 uv=floor(v_uv*cell)/cell+0.5/cell;
+  gl_FragColor=texture2D(u_tex,uv);
+}`;
+
+const FRAG_SKETCH=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
+void main(){
+  vec2 px=1./u_res;
+  float c =lum(texture2D(u_tex,v_uv).rgb);
+  float l =lum(texture2D(u_tex,v_uv-vec2(px.x,0)).rgb);
+  float r =lum(texture2D(u_tex,v_uv+vec2(px.x,0)).rgb);
+  float u =lum(texture2D(u_tex,v_uv-vec2(0,px.y)).rgb);
+  float d =lum(texture2D(u_tex,v_uv+vec2(0,px.y)).rgb);
+  float edge=abs(c-l)+abs(c-r)+abs(c-u)+abs(c-d);
+  edge*= 1.+u_intensity*8.;
+  float pencil=1.-clamp(edge,0.,1.);
+  pencil=pow(pencil,1.+u_intensity*1.5);
+  float hatch=sin((v_uv.x+v_uv.y)*u_res.y*.6)*.5+.5;
+  pencil*=mix(1.,hatch*.7+.3,u_intensity*.4);
+  gl_FragColor=vec4(vec3(pencil),1.);
+}`;
+
+const FRAG_COMIC=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
+void main(){
+  vec2 px=1./u_res;
+  vec3 c=texture2D(u_tex,v_uv).rgb;
+  float levels=mix(8.,3.,u_intensity);
+  c=floor(c*levels)/levels;
+  float lc=lum(texture2D(u_tex,v_uv).rgb);
+  float ll=lum(texture2D(u_tex,v_uv-vec2(px.x,0)).rgb);
+  float lr=lum(texture2D(u_tex,v_uv+vec2(px.x,0)).rgb);
+  float lu=lum(texture2D(u_tex,v_uv-vec2(0,px.y)).rgb);
+  float ld=lum(texture2D(u_tex,v_uv+vec2(0,px.y)).rgb);
+  float edge=step(.12,abs(lc-ll)+abs(lc-lr)+abs(lc-lu)+abs(lc-ld));
+  c*=1.-edge;
+  c=clamp(c*1.15+.04,0.,1.);
+  gl_FragColor=vec4(c,1.);
+}`;
+
+const FRAG_VHS=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity,u_time;
+float rnd(vec2 c){return fract(sin(dot(c,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec2 uv=v_uv;
+  // Per-band horizontal jitter (tape head wobble)
+  float band=floor(uv.y*28.0);
+  float bandShift=(rnd(vec2(band,floor(u_time*2.5)))-0.5)*0.06*u_intensity;
+  uv.x+=bandShift;
+  // High-freq jitter
+  float jitter=sin(uv.y*220.0+u_time*9.0)*0.0015*u_intensity;
+  uv.x+=jitter;
+  // Y/C separation: chroma bandwidth limited (low-res color, high-res luma)
+  float chromaShift=u_intensity*0.022;
+  float r=texture2D(u_tex,vec2(uv.x+chromaShift,uv.y)).r;
+  float g=texture2D(u_tex,uv).g;
+  float b=texture2D(u_tex,vec2(uv.x-chromaShift*0.7,uv.y)).b;
+  vec3 c=vec3(r,g,b);
+  // Heavy horizontal chroma blur (smear color, keep luma sharp)
+  vec3 blur=vec3(0.0);
+  float bAmp=u_intensity*0.014;
+  for(int i=-3;i<=3;i++){
+    blur+=texture2D(u_tex,vec2(uv.x+float(i)*bAmp,uv.y)).rgb;
+  }
+  blur/=7.0;
+  float lum=dot(c,vec3(0.299,0.587,0.114));
+  vec3 chromaPart=blur-vec3(dot(blur,vec3(0.299,0.587,0.114)));
+  c=vec3(lum)+chromaPart*(1.0+u_intensity*0.6);
+  // Tape dropout — random bright/dark horizontal bands
+  float drop=rnd(vec2(band,floor(u_time*4.0)));
+  if(drop>0.94)c+=vec3(0.18,0.10,0.22)*u_intensity*(rnd(vec2(band+1.0,u_time))-0.2);
+  // Drifting tracking line (slowly creeps vertically)
+  float trackPos=mod(uv.y-u_time*0.07,1.0);
+  if(trackPos<0.012)c=mix(c,vec3(0.95,0.85,1.0),0.65*u_intensity);
+  // Magenta/pink color cast typical of aged VHS
+  c=mix(c,c*vec3(1.12,0.92,1.06),u_intensity*0.40);
+  // Heavy snow grain
+  float snow=rnd(uv*100.0+u_time*0.5)-0.5;
+  c+=snow*0.12*u_intensity;
+  // Slight saturation pump on red/blue
+  c.r*=1.0+u_intensity*0.10;
+  c.b*=1.0+u_intensity*0.06;
+  gl_FragColor=vec4(clamp(c,0.,1.),1.);
+}`;
+
+const FRAG_CRT=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity,u_time;
+void main(){
+  // Strong barrel distortion (curved CRT screen)
+  vec2 uv=v_uv*2.0-1.0;
+  float distAmt=0.18+u_intensity*0.28;
+  vec2 off=uv.yx*uv.yx*distAmt;
+  uv+=uv*off;
+  vec2 nuv=uv*0.5+0.5;
+  // Hard-cut off-screen pixels (curved black corners)
+  if(nuv.x<0.0||nuv.x>1.0||nuv.y<0.0||nuv.y>1.0){gl_FragColor=vec4(0,0,0,1);return;}
+  vec3 c=texture2D(u_tex,nuv).rgb;
+  // Pronounced RGB sub-pixel mask (Trinitron aperture grille)
+  float maskW=2.6;
+  float pos=mod(nuv.x*u_res.x/maskW,3.0);
+  vec3 stripe;
+  if(pos<1.0)      stripe=vec3(1.10,0.35,0.35);
+  else if(pos<2.0) stripe=vec3(0.35,1.10,0.35);
+  else             stripe=vec3(0.35,0.35,1.10);
+  c=mix(c,c*stripe*1.45,0.45+u_intensity*0.45);
+  // Phosphor bloom — bright pixels glow with spreading light
+  float lum=dot(c,vec3(0.299,0.587,0.114));
+  float bright=max(lum-0.55,0.0);
+  c+=c*bright*(0.6+u_intensity*1.4);
+  // Sharp horizontal scanlines (high-frequency)
+  float scan=sin(nuv.y*u_res.y*1.55)*0.5+0.5;
+  c*=mix(1.0,0.55+scan*0.45,0.35+u_intensity*0.50);
+  // Glass screen highlight reflection — diagonal soft band
+  float reflBand=smoothstep(0.95,0.45,abs(nuv.x-0.30-nuv.y*0.15));
+  reflBand*=smoothstep(0.85,0.30,nuv.y);
+  c+=vec3(0.06,0.07,0.10)*reflBand*u_intensity*0.6;
+  // Pronounced vignette / dark corners (CRT curvature)
+  float d=length(uv);
+  float vig=smoothstep(1.35,0.55,d);
+  c*=mix(1.0,vig,0.35+u_intensity*0.55);
+  // Extra darkening from screen curvature toward edges
+  c*=1.0-pow(d,4.0)*u_intensity*0.45;
+  gl_FragColor=vec4(clamp(c,0.,1.),1.);
+}`;
+
+const FRAG_BLUR=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+void main(){
+  // Aspect-corrected radial distance from center
+  vec2 c=v_uv-0.5;
+  c.x*=u_res.x/u_res.y;
+  float d=length(c);
+  // Tighter focus area as intensity grows; sharper falloff to full blur
+  float focusEdge=mix(0.48,0.30,u_intensity);
+  float focus=smoothstep(focusEdge*0.45,focusEdge,d);
+  focus=pow(focus,0.75);
+  vec2 px=1.0/u_res;
+  // Gentler blur radius — up to ~15 px at full intensity
+  float r=mix(1.0,15.0,u_intensity)*focus;
+  vec3 sum=vec3(0.);float wsum=0.;
+  // 7x7 Gaussian-weighted kernel
+  for(int i=-3;i<=3;i++){
+    for(int j=-3;j<=3;j++){
+      float fi=float(i),fj=float(j);
+      float wt=exp(-0.18*(fi*fi+fj*fj));
+      vec2 o=vec2(fi,fj)*r*px;
+      sum+=texture2D(u_tex,v_uv+o).rgb*wt;
+      wsum+=wt;
+    }
+  }
+  vec3 blurred=sum/wsum;
+  vec3 sharp=texture2D(u_tex,v_uv).rgb;
+  // Boost saturation slightly for bokeh feel
+  vec3 outc=mix(sharp,blurred,focus);
+  gl_FragColor=vec4(outc,1.);
+}`;
+
+const FRAG_NIGHT=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity,u_time;
+float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
+float rnd(vec2 c){return fract(sin(dot(c,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec2 px=1./u_res;
+  vec3 c=texture2D(u_tex,v_uv).rgb;
+  float l=lum(c);
+  l=pow(l,0.55);
+  float l2=lum(texture2D(u_tex,v_uv+px).rgb);
+  float edge=abs(l-l2)*4.;
+  l+=edge*0.4*u_intensity;
+  vec3 nv=vec3(l*0.18,l*1.15,l*0.22);
+  float noise=rnd(v_uv+u_time)*0.09*u_intensity;
+  nv+=noise;
+  vec2 uv=v_uv*2.-1.;
+  float vig=smoothstep(1.5,0.3,length(uv));
+  nv*=mix(1.,vig,0.6);
+  float scan=sin(v_uv.y*u_res.y*0.9)*.04;
+  nv-=scan;
+  gl_FragColor=vec4(clamp(nv,0.,1.),1.);
+}`;
+
+const FRAG_RGB=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform float u_intensity,u_time,u_mouseX;
+void main(){
+  float a=u_intensity*0.04*(1.+sin(u_time*2.)*.15);
+  vec2 dir=vec2(cos(u_mouseX*6.28),sin(u_mouseX*6.28));
+  float r=texture2D(u_tex,v_uv+dir*a).r;
+  float g=texture2D(u_tex,v_uv).g;
+  float b=texture2D(u_tex,v_uv-dir*a).b;
+  gl_FragColor=vec4(r,g,b,1.);
+}`;
+
+const FRAG_POSTERIZE=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform float u_intensity;
+void main(){
+  vec3 c=texture2D(u_tex,v_uv).rgb;
+  float lvl=mix(12.,2.,u_intensity);
+  c=floor(c*lvl)/lvl;
+  c=c*1.05+0.02;
+  gl_FragColor=vec4(clamp(c,0.,1.),1.);
+}`;
+
+const FRAG_DUOTONE=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform float u_intensity,u_time;
+void main(){
+  vec3 c=texture2D(u_tex,v_uv).rgb;
+  float lum=dot(c,vec3(.299,.587,.114));
+  // Cycling palette index — 5 distinct tritones with smooth cross-fade
+  float palT=u_time*0.10;
+  float pi=mod(palT,5.0);
+  float pf=fract(pi);
+  float idx=floor(pi);
+  // Tritone palettes: dark / mid / light per palette
+  vec3 d,m,l,dn,mn,ln;
+  if(idx<0.5){
+    d=vec3(0.04,0.02,0.20);m=vec3(0.85,0.16,0.55);l=vec3(1.00,0.85,0.32); // Cyber Sunset
+    dn=vec3(0.02,0.10,0.20);mn=vec3(0.10,0.55,0.78);ln=vec3(0.92,1.00,0.85); // Ocean
+  } else if(idx<1.5){
+    d=vec3(0.02,0.10,0.20);m=vec3(0.10,0.55,0.78);l=vec3(0.92,1.00,0.85); // Ocean
+    dn=vec3(0.20,0.03,0.04);mn=vec3(0.95,0.32,0.10);ln=vec3(1.00,0.92,0.55); // Lava
+  } else if(idx<2.5){
+    d=vec3(0.20,0.03,0.04);m=vec3(0.95,0.32,0.10);l=vec3(1.00,0.92,0.55); // Lava
+    dn=vec3(0.02,0.14,0.04);mn=vec3(0.30,0.72,0.20);ln=vec3(0.90,1.00,0.50); // Forest
+  } else if(idx<3.5){
+    d=vec3(0.02,0.14,0.04);m=vec3(0.30,0.72,0.20);l=vec3(0.90,1.00,0.50); // Forest
+    dn=vec3(0.10,0.02,0.22);mn=vec3(0.55,0.20,0.95);ln=vec3(1.00,0.70,1.00); // Violet
+  } else {
+    d=vec3(0.10,0.02,0.22);m=vec3(0.55,0.20,0.95);l=vec3(1.00,0.70,1.00); // Violet
+    dn=vec3(0.04,0.02,0.20);mn=vec3(0.85,0.16,0.55);ln=vec3(1.00,0.85,0.32); // Sunset
+  }
+  d=mix(d,dn,pf);m=mix(m,mn,pf);l=mix(l,ln,pf);
+  // Tritone interpolation with smooth curves at the breakpoints
+  vec3 res;
+  if(lum<0.5) res=mix(d,m,smoothstep(0.0,1.0,lum*2.0));
+  else        res=mix(m,l,smoothstep(0.0,1.0,(lum-0.5)*2.0));
+  // Subtle dither grain for organic film-like feel
+  float grain=fract(sin(dot(v_uv*1024.0,vec2(12.9898,78.233)))*43758.5453);
+  res+=(grain-0.5)*0.035*u_intensity;
+  // Mild contrast/saturation pop
+  res=clamp((res-0.5)*1.08+0.5,0.0,1.0);
+  gl_FragColor=vec4(mix(c,res,u_intensity),1.0);
+}`;
+
+const FRAG_LIQUID=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity,u_time;
+void main(){
+  vec2 uv=v_uv;
+  float t=u_time*0.7;
+  // Multi-octave sine waves — natural liquid motion
+  float wx=sin(uv.y*8.0+t*1.3)*0.55+sin(uv.y*16.0+t*2.1)*0.30+sin(uv.y*28.0-t*1.0)*0.15;
+  float wy=cos(uv.x*7.0+t*1.1)*0.50+cos(uv.x*14.0-t*1.7)*0.25+sin(uv.x*22.0+t*0.8)*0.12;
+  // Cross-axis swirl term
+  float swirl=sin((uv.x+uv.y)*10.0+t*1.4)*0.20;
+  float amp=0.004+u_intensity*0.060;
+  uv.x+=(wx+swirl)*amp;
+  uv.y+=wy*amp*0.7;
+  vec3 c=texture2D(u_tex,clamp(uv,0.0,1.0)).rgb;
+  // Animated caustics — light shimmer like through water
+  float caust=sin(uv.x*30.0+t*1.8)*sin(uv.y*22.0-t*1.3)*0.5+0.5;
+  caust=pow(caust,3.0);
+  c+=caust*0.18*u_intensity;
+  // Cool aqua tint
+  c*=mix(vec3(1.0),vec3(0.82,0.95,1.12),u_intensity*0.45);
+  // Subtle horizontal "surface" highlight band
+  float surf=sin(uv.y*4.0+t*0.5)*0.5+0.5;
+  c+=vec3(0.06,0.10,0.14)*surf*u_intensity*0.35;
+  gl_FragColor=vec4(clamp(c,0.,1.),1.);
+}`;
+
+const FRAG_EMBOSS=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+void main(){
+  vec2 px=1./u_res;
+  // Sample upper-left and lower-right neighbours for directional gradient
+  vec3 ul=texture2D(u_tex,v_uv-px).rgb;
+  vec3 lr=texture2D(u_tex,v_uv+px).rgb;
+  float dlum=dot(lr-ul,vec3(.299,.587,.114));
+  // Center grayscale at 0.5 + scaled difference (3D relief)
+  float emb=0.5+dlum*(1.5+u_intensity*7.0);
+  vec3 outc=vec3(emb);
+  // Warm metallic tint
+  outc=mix(outc,outc*vec3(1.10,0.96,0.78),u_intensity*0.55);
+  // Subtle color bleed from original at low intensity
+  vec3 c=texture2D(u_tex,v_uv).rgb;
+  outc=mix(c*0.6+vec3(0.5)*0.4,outc,0.4+u_intensity*0.6);
+  gl_FragColor=vec4(clamp(outc,0.,1.),1.);
+}`;
+
+const FRAG_HALFTONE=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity;
+void main(){
+  // Grid resolution — fewer cells = bigger, more dramatic dots at high intensity
+  float gridX=mix(200.0,55.0,u_intensity);
+  float gridY=gridX*u_res.y/u_res.x;
+  vec2 cell=vec2(gridX,gridY);
+  // Sample center color of each cell
+  vec2 cellCenter=(floor(v_uv*cell)+0.5)/cell;
+  vec3 src=texture2D(u_tex,cellCenter).rgb;
+  float lum=dot(src,vec3(.299,.587,.114));
+  // Position within cell (-0.5 .. 0.5)
+  vec2 pos=fract(v_uv*cell)-0.5;
+  float d=length(pos);
+  // Dot radius proportional to darkness (dark areas = big dots)
+  float r=sqrt((1.0-lum)*0.55);
+  float dot=1.0-smoothstep(r-0.06,r+0.02,d);
+  // Cream "paper" + dark colored "ink"
+  vec3 paper=vec3(0.97,0.94,0.86);
+  vec3 ink=mix(src*0.55,vec3(0.10,0.08,0.14),0.30);
+  vec3 outc=mix(paper,ink,dot);
+  // Slight CMYK-like color print misregistration for retro feel
+  vec3 sR=texture2D(u_tex,cellCenter+vec2(0.004,0.0)).rgb;
+  vec3 sB=texture2D(u_tex,cellCenter-vec2(0.004,0.0)).rgb;
+  vec3 colorInk=vec3(sR.r,src.g,sB.b)*0.65;
+  outc=mix(outc,mix(paper,colorInk,dot),u_intensity*0.55);
+  // Mix with original at low intensity for soft transition
+  vec3 orig=texture2D(u_tex,v_uv).rgb;
+  outc=mix(orig,outc,0.30+u_intensity*0.70);
+  gl_FragColor=vec4(outc,1.0);
+}`;
+
+const FRAG_HOLOGRAM=`
+precision mediump float;varying vec2 v_uv;uniform sampler2D u_tex;
+uniform vec2 u_res;uniform float u_intensity,u_time;
+float rnd(vec2 c){return fract(sin(dot(c,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec2 uv=v_uv;
+  float jitter=sin(u_time*9.)*0.001*u_intensity;
+  uv.x+=jitter;
+  float ca=0.008*u_intensity;
+  float r=texture2D(u_tex,vec2(uv.x+ca,uv.y)).r;
+  float g=texture2D(u_tex,uv).g;
+  float b=texture2D(u_tex,vec2(uv.x-ca,uv.y)).b;
+  vec3 c=vec3(r,g,b);
+  float l=dot(c,vec3(.299,.587,.114));
+  vec3 holo=vec3(0.2*l,0.95*l,1.0*l);
+  float scan=sin(uv.y*u_res.y*0.8-u_time*4.)*.5+.5;
+  holo*=0.7+scan*0.55*u_intensity;
+  float band=sin(uv.y*5.-u_time)*.5+.5;
+  holo+=vec3(0.0,0.3,0.4)*band*0.18*u_intensity;
+  float flick=rnd(vec2(floor(u_time*8.),0.))*0.1*u_intensity;
+  holo+=flick;
+  gl_FragColor=vec4(clamp(holo,0.,1.),1.);
+}`;
+
 // ================================================================
 //  WebGL init
 // ================================================================
@@ -520,7 +1126,7 @@ function buildProg(frag){
   gl.linkProgram(p);
   if(!gl.getProgramParameter(p,gl.LINK_STATUS)){
     console.error('Program link failed:',gl.getProgramInfoLog(p));
-    return null; // null → renderGL() ho preskočí, nič sa nesekne
+    return null;
   }
   return p;
 }
@@ -539,11 +1145,25 @@ function uploadTex(src){
   try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);}catch(e){console.warn(e);}
 }
 function initPrograms(){
-  programs.glitch  = buildProg(FRAG_GLITCH);
-  programs.neon    = buildProg(FRAG_NEON);
-  programs.thermal = buildProg(FRAG_THERMAL);
-  programs.kaleido = buildProg(FRAG_KALEIDO);
-  programs.oil     = buildProg(FRAG_OIL);
+  programs.glitch    = buildProg(FRAG_GLITCH);
+  programs.neon      = buildProg(FRAG_NEON);
+  programs.thermal   = buildProg(FRAG_THERMAL);
+  programs.kaleido   = buildProg(FRAG_KALEIDO);
+  programs.oil       = buildProg(FRAG_OIL);
+  programs.pixelate  = buildProg(FRAG_PIXELATE);
+  programs.sketch    = buildProg(FRAG_SKETCH);
+  programs.comic     = buildProg(FRAG_COMIC);
+  programs.vhs       = buildProg(FRAG_VHS);
+  programs.crt       = buildProg(FRAG_CRT);
+  programs.blur      = buildProg(FRAG_BLUR);
+  programs.night     = buildProg(FRAG_NIGHT);
+  programs.rgbsplit  = buildProg(FRAG_RGB);
+  programs.posterize = buildProg(FRAG_POSTERIZE);
+  programs.duotone   = buildProg(FRAG_DUOTONE);
+  programs.hologram  = buildProg(FRAG_HOLOGRAM);
+  programs.liquid    = buildProg(FRAG_LIQUID);
+  programs.emboss    = buildProg(FRAG_EMBOSS);
+  programs.halftone  = buildProg(FRAG_HALFTONE);
 }
 
 // ================================================================
@@ -594,14 +1214,13 @@ function renderASCII(){
 }
 
 // ================================================================
-//  RENDER — Time Warp Scan ⏱
+//  RENDER — Time Warp Scan
 // ================================================================
 function initWarp(){
   const cw=warpCanvas.width,ch=warpCanvas.height;
   warpFreeze.width=cw;warpFreeze.height=ch;
   warpLive.width=cw;warpLive.height=ch;
 }
-
 function startWarpScan(){
   if(!hasSource||warpRunning)return;
   initWarp();
@@ -610,29 +1229,20 @@ function startWarpScan(){
   warpRunning=true;warpReady=true;
   document.querySelector('.fx-btn[data-fx="warp"]').classList.add('warp-running');
 }
-
 function renderTimeWarp(){
   if(!hasSource)return;
   const cw=warpCanvas.width,ch=warpCanvas.height;
-
   if(!warpRunning){
     if(warpReady){
       warpCtx.drawImage(warpFreeze,0,0,cw,ch);
     }else{
-      if(isWebcam&&videoEl&&videoEl.readyState>=2){
-        warpCtx.save();warpCtx.translate(cw,0);warpCtx.scale(-1,1);
-        warpCtx.drawImage(videoEl,0,0,cw,ch);warpCtx.restore();
-      }else if(imgEl){
-        warpCtx.drawImage(imgEl,0,0,cw,ch);
-      }
+      sampleSource(warpCanvas,warpCtx,cw,ch);
     }
     return;
   }
-
   sampleSource(warpLive,warpLiveCtx,cw,ch);
   warpPrevPos=warpPos;
   warpPos+=0.0015+intensity*0.010;
-
   if(warpPos>=1.0){
     const p0=Math.floor(warpPrevPos*cw);
     if(p0<cw) warpFreezeCtx.drawImage(warpLive,p0,0,cw-p0,ch,p0,0,cw-p0,ch);
@@ -641,28 +1251,448 @@ function renderTimeWarp(){
     document.querySelector('.fx-btn[data-fx="warp"]').classList.remove('warp-running');
     return;
   }
-
   const p0=Math.floor(warpPrevPos*cw);
   const p1=Math.floor(warpPos*cw);
   const scanX=p1;
-
   if(p1>p0) warpFreezeCtx.drawImage(warpLive,p0,0,p1-p0+1,ch,p0,0,p1-p0+1,ch);
   warpCtx.drawImage(warpFreeze,0,0,cw,ch);
   if(scanX<cw) warpCtx.drawImage(warpLive,scanX,0,cw-scanX,ch,scanX,0,cw-scanX,ch);
-
-  warpCtx.fillStyle='rgba(60,90,200,0.06)';
-  warpCtx.fillRect(0,0,scanX,ch);
-  warpCtx.fillStyle='rgba(255,150,60,0.04)';
-  warpCtx.fillRect(scanX,0,cw-scanX,ch);
-
+  warpCtx.fillStyle='rgba(60,90,200,0.06)';warpCtx.fillRect(0,0,scanX,ch);
+  warpCtx.fillStyle='rgba(255,150,60,0.04)';warpCtx.fillRect(scanX,0,cw-scanX,ch);
   const grd=warpCtx.createLinearGradient(scanX-18,0,scanX+18,0);
-  grd.addColorStop(0,  'rgba(168,85,247,0)');
+  grd.addColorStop(0,'rgba(168,85,247,0)');
   grd.addColorStop(.35,'rgba(168,85,247,0.55)');
-  grd.addColorStop(.5, 'rgba(255,255,255,0.95)');
+  grd.addColorStop(.5,'rgba(255,255,255,0.95)');
   grd.addColorStop(.65,'rgba(6,182,212,0.55)');
-  grd.addColorStop(1,  'rgba(6,182,212,0)');
-  warpCtx.fillStyle=grd;
-  warpCtx.fillRect(scanX-18,0,36,ch);
+  grd.addColorStop(1,'rgba(6,182,212,0)');
+  warpCtx.fillStyle=grd;warpCtx.fillRect(scanX-18,0,36,ch);
+}
+
+// ================================================================
+//  RENDER — Camera-only effects (use fxCanvas)
+// ================================================================
+
+// ── MIRROR DREAM — Rorschach-style symmetric reflection ──
+function renderMirrorDream(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  sampleSource(workA,workACtx,w,h);
+  // Base = original frame
+  fxCtx.fillStyle='#000';fxCtx.fillRect(0,0,w,h);
+  fxCtx.drawImage(workA,0,0,w,h);
+  // Horizontal mirror blended additively (alpha grows with intensity)
+  fxCtx.globalCompositeOperation='lighter';
+  fxCtx.globalAlpha=0.35+intensity*0.55;
+  fxCtx.save();
+  fxCtx.translate(w,0);fxCtx.scale(-1,1);
+  fxCtx.drawImage(workA,0,0,w,h);
+  fxCtx.restore();
+  fxCtx.globalAlpha=1;fxCtx.globalCompositeOperation='source-over';
+  // At higher intensity add vertical mirror via workB snapshot for 4-fold symmetry
+  if(intensity>0.4){
+    workBCtx.clearRect(0,0,w,h);
+    workBCtx.drawImage(fxCanvas,0,0,w,h);
+    fxCtx.globalCompositeOperation='lighter';
+    fxCtx.globalAlpha=(intensity-0.4)*1.1;
+    fxCtx.save();
+    fxCtx.translate(0,h);fxCtx.scale(1,-1);
+    fxCtx.drawImage(workB,0,0,w,h);
+    fxCtx.restore();
+    fxCtx.globalAlpha=1;fxCtx.globalCompositeOperation='source-over';
+  }
+  // Subtle center seam highlight to emphasize symmetry axis
+  if(intensity>0.15){
+    const grd=fxCtx.createLinearGradient(w/2-2,0,w/2+2,0);
+    grd.addColorStop(0,'rgba(168,85,247,0)');
+    grd.addColorStop(0.5,'rgba(255,255,255,'+(0.12+intensity*0.18)+')');
+    grd.addColorStop(1,'rgba(168,85,247,0)');
+    fxCtx.fillStyle=grd;
+    fxCtx.fillRect(w/2-2,0,4,h);
+  }
+}
+
+// ── SLIT SCAN — each vertical band from a different time delay ──
+function renderSlitScan(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  // Sample current frame into workA
+  sampleSource(workA,workACtx,w,h);
+  // Push to ring buffer
+  let c;
+  if(slitFrames.length>=SLIT_BUF_MAX){c=slitFrames.shift();}
+  else{c=document.createElement('canvas');}
+  if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  c.getContext('2d').drawImage(workA,0,0);
+  slitFrames.push(c);
+  // Render: each slice from a different past frame
+  fxCtx.fillStyle='#000';fxCtx.fillRect(0,0,w,h);
+  const slices=Math.max(6,Math.floor(8+intensity*40));
+  const sliceW=w/slices;
+  const len=slitFrames.length;
+  for(let i=0;i<slices;i++){
+    const t=slices>1?i/(slices-1):0;
+    const idx=Math.max(0,Math.min(len-1,Math.floor(t*(len-1))));
+    const frame=slitFrames[idx];
+    const sx=Math.floor(i*sliceW);
+    const sw=Math.ceil(sliceW)+1;
+    fxCtx.drawImage(frame,sx,0,sw,h,sx,0,sw,h);
+  }
+}
+
+// ── MIRROR TUNNEL — concentric mirror rings of the live frame ──
+// Each ring is an independent shrunk copy of the live frame (no recursion).
+// Intensity strongly drives both ring count and shrink rate.
+function renderMirrorTunnel(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  // Fresh live frame
+  sampleSource(workA,workACtx,w,h);
+  fxCtx.fillStyle='#000';fxCtx.fillRect(0,0,w,h);
+  // Outermost = full live frame
+  fxCtx.drawImage(workA,0,0,w,h);
+  // Number of inner rings: 1 (subtle) → 14 (deep tunnel)
+  const rings=Math.floor(1+intensity*13);
+  // Each ring shrinks by this factor relative to the previous one
+  const ringScale=0.90-intensity*0.18; // 0.90 → 0.72
+  for(let i=1;i<=rings;i++){
+    const s=Math.pow(ringScale,i);
+    const nw=w*s,nh=h*s;
+    if(nw<6||nh<6)break; // skip invisible rings
+    fxCtx.save();
+    fxCtx.translate(w/2,h/2);
+    if(i%2)fxCtx.scale(-1,1);
+    // Draw centered mirror copy of live frame
+    fxCtx.drawImage(workA,-nw/2,-nh/2,nw,nh);
+    // Visible purple frame around each ring to emphasise mirror boundaries
+    fxCtx.strokeStyle='rgba(168,85,247,'+(0.45-i*0.025)+')';
+    fxCtx.lineWidth=1.5;
+    fxCtx.strokeRect(-nw/2,-nh/2,nw,nh);
+    fxCtx.restore();
+  }
+}
+
+// ── SWIRL VORTEX — radial swirl distortion (per-pixel UV warp at half res) ──
+function renderSwirl(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  const dw=Math.floor(w/2),dh=Math.floor(h/2);
+  if(swirlBuf.width!==dw||swirlBuf.height!==dh){swirlBuf.width=dw;swirlBuf.height=dh;}
+  sampleSource(swirlBuf,swirlBufCtx,dw,dh);
+  const src=swirlBufCtx.getImageData(0,0,dw,dh).data;
+  const out=swirlBufCtx.createImageData(dw,dh);
+  const od=out.data;
+  const cx=dw/2,cy=dh/2;
+  const maxR=Math.sqrt(cx*cx+cy*cy);
+  const tt=performance.now()*0.0005;
+  // Animated swirl strength + subtle rotation drift
+  const swirlMax=(2.0+intensity*7.0)*(0.85+Math.sin(tt*1.4)*0.15);
+  const baseRot=tt*0.4*intensity;
+  for(let y=0;y<dh;y++){
+    for(let x=0;x<dw;x++){
+      const dx=x-cx,dy=y-cy;
+      const r=Math.sqrt(dx*dx+dy*dy);
+      const norm=r/maxR;
+      const angle=Math.atan2(dy,dx);
+      // Stronger swirl in mid-radius, less at center & edges
+      const falloff=Math.sin(norm*Math.PI);
+      const newAngle=angle+baseRot+swirlMax*falloff;
+      let sx=(cx+Math.cos(newAngle)*r)|0;
+      let sy=(cy+Math.sin(newAngle)*r)|0;
+      sx=sx<0?0:(sx>=dw?dw-1:sx);
+      sy=sy<0?0:(sy>=dh?dh-1:sy);
+      const di=(y*dw+x)*4;
+      const si=(sy*dw+sx)*4;
+      od[di]=src[si];od[di+1]=src[si+1];od[di+2]=src[si+2];od[di+3]=255;
+    }
+  }
+  swirlBufCtx.putImageData(out,0,0);
+  fxCtx.imageSmoothingEnabled=true;
+  fxCtx.drawImage(swirlBuf,0,0,dw,dh,0,0,w,h);
+  // Subtle radial darkening at edges
+  const grd=fxCtx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.35,w/2,h/2,Math.min(w,h)*0.7);
+  grd.addColorStop(0,'rgba(0,0,0,0)');
+  grd.addColorStop(1,'rgba(0,0,0,'+(0.18+intensity*0.18)+')');
+  fxCtx.fillStyle=grd;fxCtx.fillRect(0,0,w,h);
+}
+
+// ── STARDUST — DRAMATIC particle system with motion trails + colorful sparks ──
+function renderStardust(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  sampleSource(workA,workACtx,w,h);
+  // Base: heavily darkened source for contrast (particles need black background)
+  fxCtx.fillStyle='#000';fxCtx.fillRect(0,0,w,h);
+  fxCtx.globalAlpha=0.32;
+  fxCtx.drawImage(workA,0,0,w,h);
+  fxCtx.globalAlpha=1;
+  // Probe bright pixels at low resolution
+  const dw=Math.max(80,Math.floor(w/10));
+  const dh=Math.max(60,Math.floor(h/10));
+  workB.width=dw;workB.height=dh;
+  workBCtx.drawImage(workA,0,0,dw,dh);
+  const data=workBCtx.getImageData(0,0,dw,dh).data;
+  // Spawn — much more aggressive
+  const targetSpawn=Math.floor(4+intensity*22);
+  let spawned=0,attempts=0;
+  while(spawned<targetSpawn&&attempts<targetSpawn*8&&stardustParticles.length<STARDUST_MAX){
+    attempts++;
+    const px=(Math.random()*dw)|0;
+    const py=(Math.random()*dh)|0;
+    const idx=(py*dw+px)*4;
+    let pr=data[idx],pg=data[idx+1],pb=data[idx+2];
+    const lum=(pr*0.299+pg*0.587+pb*0.114)/255;
+    if(lum<0.42||Math.random()>lum*1.2)continue;
+    // Boost saturation: push the dominant channel higher
+    const max=Math.max(pr,pg,pb);
+    pr=Math.min(255,pr+ (pr===max?60:15));
+    pg=Math.min(255,pg+ (pg===max?60:15));
+    pb=Math.min(255,pb+ (pb===max?60:15));
+    // Random "burst" particles get extra speed
+    const burst=Math.random()<0.18;
+    const ang=Math.random()*Math.PI*2;
+    const spd=burst?(2.5+Math.random()*3.5):(0.7+Math.random()*1.4);
+    stardustParticles.push({
+      px:(px/dw)*w+(Math.random()-0.5)*12,
+      py:(py/dh)*h+(Math.random()-0.5)*12,
+      x:(px/dw)*w+(Math.random()-0.5)*12,
+      y:(py/dh)*h+(Math.random()-0.5)*12,
+      vx:Math.cos(ang)*spd*(burst?1:0.4),
+      vy:-1.0-Math.random()*1.6+Math.sin(ang)*spd*(burst?0.3:0.2),
+      life:1.0,
+      size:burst?(2.4+Math.random()*3.0):(1.6+Math.random()*2.4),
+      r:pr,g:pg,b:pb,
+      twinkle:Math.random()*Math.PI*2,
+      burst
+    });
+    spawned++;
+  }
+  // Update + draw with motion trails
+  const tt=performance.now()*0.005;
+  fxCtx.globalCompositeOperation='lighter';
+  for(let i=stardustParticles.length-1;i>=0;i--){
+    const p=stardustParticles[i];
+    p.px=p.x;p.py=p.y;
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.vx*=0.982;
+    p.vy*=0.985;
+    p.vy+=0.012; // gravity
+    p.life-=p.burst?(0.013+intensity*0.003):(0.008+intensity*0.003);
+    if(p.life<=0||p.y<-15||p.y>h+15||p.x<-15||p.x>w+15){
+      stardustParticles.splice(i,1);continue;
+    }
+    const a=p.life;
+    // Twinkle modulation — subtle pulse
+    const tw=0.75+Math.sin(p.twinkle+tt)*0.25;
+    const sz=p.size*(0.5+a*0.7)*tw;
+    // Motion trail (line from prev to current)
+    fxCtx.strokeStyle='rgba('+(p.r|0)+','+(p.g|0)+','+(p.b|0)+','+(a*0.45)+')';
+    fxCtx.lineWidth=sz*0.85;
+    fxCtx.lineCap='round';
+    fxCtx.beginPath();
+    fxCtx.moveTo(p.px,p.py);
+    fxCtx.lineTo(p.x,p.y);
+    fxCtx.stroke();
+    // Outer color glow (large, soft)
+    fxCtx.fillStyle='rgba('+(p.r|0)+','+(p.g|0)+','+(p.b|0)+','+(a*0.4)+')';
+    fxCtx.beginPath();fxCtx.arc(p.x,p.y,sz*2.6,0,6.283);fxCtx.fill();
+    // Mid glow
+    fxCtx.fillStyle='rgba('+(p.r|0)+','+(p.g|0)+','+(p.b|0)+','+(a*0.7)+')';
+    fxCtx.beginPath();fxCtx.arc(p.x,p.y,sz*1.4,0,6.283);fxCtx.fill();
+    // Bright white-hot core
+    fxCtx.fillStyle='rgba(255,255,255,'+(a*0.95)+')';
+    fxCtx.beginPath();fxCtx.arc(p.x,p.y,sz*0.55,0,6.283);fxCtx.fill();
+    // Cross-shaped sparkle for burst particles
+    if(p.burst&&a>0.3){
+      const sp=sz*3.5*tw;
+      fxCtx.strokeStyle='rgba(255,255,255,'+(a*0.55)+')';
+      fxCtx.lineWidth=1;
+      fxCtx.beginPath();
+      fxCtx.moveTo(p.x-sp,p.y);fxCtx.lineTo(p.x+sp,p.y);
+      fxCtx.moveTo(p.x,p.y-sp);fxCtx.lineTo(p.x,p.y+sp);
+      fxCtx.stroke();
+    }
+  }
+  fxCtx.globalCompositeOperation='source-over';
+}
+
+// ── DATAMOSH — corrupted video glitch with random freezes ──
+function renderDatamosh(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  const now=performance.now();
+  if(!datamoshActive&&Math.random()<0.025+intensity*0.06){
+    datamoshActive=true;
+    datamoshFreezeUntil=now+60+Math.random()*240;
+    if(!datamoshFreeze){datamoshFreeze=document.createElement('canvas');}
+    if(datamoshFreeze.width!==w||datamoshFreeze.height!==h){datamoshFreeze.width=w;datamoshFreeze.height=h;}
+    sampleSource(datamoshFreeze,datamoshFreeze.getContext('2d'),w,h);
+  }
+  if(datamoshActive&&now>=datamoshFreezeUntil)datamoshActive=false;
+  // Base into workA
+  if(datamoshActive&&datamoshFreeze){workACtx.drawImage(datamoshFreeze,0,0,w,h);}
+  else{sampleSource(workA,workACtx,w,h);}
+  fxCtx.drawImage(workA,0,0,w,h);
+  // Displacement bands
+  const numBands=datamoshActive?(6+Math.floor(intensity*12)):(1+Math.floor(intensity*4));
+  for(let i=0;i<numBands;i++){
+    if(Math.random()<(datamoshActive?0.92:0.3+intensity*0.5)){
+      const y=Math.random()*h;
+      const bandH=4+Math.random()*36;
+      const offset=(Math.random()-0.5)*intensity*140;
+      fxCtx.drawImage(workA,0,y,w,bandH,offset,y,w,bandH);
+    }
+  }
+  // Color split
+  if(intensity>0.25||datamoshActive){
+    fxCtx.globalCompositeOperation='screen';
+    fxCtx.globalAlpha=0.22+intensity*0.22;
+    fxCtx.drawImage(workA,8+intensity*16,0,w,h);
+    fxCtx.globalAlpha=0.18+intensity*0.18;
+    fxCtx.drawImage(workA,-(8+intensity*16),0,w,h);
+    fxCtx.globalAlpha=1;fxCtx.globalCompositeOperation='source-over';
+  }
+  // Random pixel scrambles during freeze
+  if(datamoshActive){
+    const events=2+Math.floor(intensity*5);
+    for(let i=0;i<events;i++){
+      if(Math.random()<0.55){
+        const py=Math.random()*h;const pH=2+Math.random()*8;
+        fxCtx.fillStyle=`rgba(${(Math.random()*255)|0},${(Math.random()*255)|0},${(Math.random()*255)|0},0.55)`;
+        fxCtx.fillRect(0,py,w,pH);
+      }
+    }
+  }
+}
+
+// ── RGB DELAY — R/G/B channels show different time delays ──
+const rgbChanTmp=document.createElement('canvas');const rgbChanTmpCtx=rgbChanTmp.getContext('2d');
+function renderRgbDelay(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  if(rgbChanTmp.width!==w||rgbChanTmp.height!==h){rgbChanTmp.width=w;rgbChanTmp.height=h;}
+  // Push current into ring buffer
+  let c;
+  if(rgbDelayBuf.length>=RGB_BUF_MAX){c=rgbDelayBuf.shift();}
+  else{c=document.createElement('canvas');}
+  if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  sampleSource(c,c.getContext('2d'),w,h);
+  rgbDelayBuf.push(c);
+  const len=rgbDelayBuf.length;
+  if(len<3){fxCtx.drawImage(c,0,0,w,h);return;}
+  const greenDelay=Math.floor((len-1)*0.45*intensity);
+  const blueDelay =Math.floor((len-1)*0.95*intensity);
+  const redFrame  =rgbDelayBuf[len-1];
+  const greenFrame=rgbDelayBuf[Math.max(0,len-1-greenDelay)];
+  const blueFrame =rgbDelayBuf[Math.max(0,len-1-blueDelay)];
+  function drawChannel(frame,col){
+    rgbChanTmpCtx.globalCompositeOperation='source-over';
+    rgbChanTmpCtx.clearRect(0,0,w,h);
+    rgbChanTmpCtx.drawImage(frame,0,0,w,h);
+    rgbChanTmpCtx.globalCompositeOperation='multiply';
+    rgbChanTmpCtx.fillStyle=col;
+    rgbChanTmpCtx.fillRect(0,0,w,h);
+  }
+  fxCtx.fillStyle='#000';fxCtx.fillRect(0,0,w,h);
+  fxCtx.globalCompositeOperation='lighter';
+  drawChannel(redFrame,'#ff0000');  fxCtx.drawImage(rgbChanTmp,0,0);
+  drawChannel(greenFrame,'#00ff00');fxCtx.drawImage(rgbChanTmp,0,0);
+  drawChannel(blueFrame,'#0000ff'); fxCtx.drawImage(rgbChanTmp,0,0);
+  fxCtx.globalCompositeOperation='source-over';
+}
+
+// ── SCI-FI SCANNER — desaturates base, scan band reveals color, fades back ──
+function renderScanner(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  ensureWorkSize(w,h);
+  if(scannerAcc.width!==w||scannerAcc.height!==h){
+    scannerAcc.width=w;scannerAcc.height=h;
+    scannerAccCtx.fillStyle='#000';scannerAccCtx.fillRect(0,0,w,h);
+  }
+  const t=(performance.now()-startTime)*.001;
+  const speed=0.25+intensity*1.4;
+  const y=((t*speed)%1.0)*h;
+  const bandH=Math.max(28,h*0.06);
+  // Fade accumulator slowly
+  scannerAccCtx.globalCompositeOperation='destination-out';
+  scannerAccCtx.fillStyle='rgba(0,0,0,'+(0.045+intensity*0.05)+')';
+  scannerAccCtx.fillRect(0,0,w,h);
+  scannerAccCtx.globalCompositeOperation='source-over';
+  // Sample fresh frame in scan zone into accumulator
+  sampleSource(workA,workACtx,w,h);
+  scannerAccCtx.drawImage(workA,0,Math.max(0,y-bandH),w,bandH*2,0,Math.max(0,y-bandH),w,bandH*2);
+  // Render: desaturated base
+  fxCtx.save();
+  fxCtx.filter='saturate(0.18) brightness(0.55) contrast(1.15)';
+  sampleSource(fxCanvas,fxCtx,w,h);
+  fxCtx.filter='none';
+  fxCtx.restore();
+  // Colored accumulator on top (where scan recently passed)
+  fxCtx.globalCompositeOperation='lighter';
+  fxCtx.globalAlpha=0.95;
+  fxCtx.drawImage(scannerAcc,0,0,w,h);
+  fxCtx.globalAlpha=1;fxCtx.globalCompositeOperation='source-over';
+  // Bright cyan/purple scan band
+  const grd=fxCtx.createLinearGradient(0,y-bandH*1.5,0,y+bandH*1.5);
+  grd.addColorStop(0,'rgba(6,182,212,0)');
+  grd.addColorStop(0.45,'rgba(6,182,212,'+(0.45+intensity*0.35)+')');
+  grd.addColorStop(0.55,'rgba(168,85,247,'+(0.45+intensity*0.35)+')');
+  grd.addColorStop(1,'rgba(168,85,247,0)');
+  fxCtx.fillStyle=grd;fxCtx.fillRect(0,y-bandH*1.5,w,bandH*3);
+  // White scan core line
+  fxCtx.fillStyle='rgba(255,255,255,'+(0.7+intensity*0.25)+')';
+  fxCtx.fillRect(0,y,w,2);
+  // Subtle grid overlay
+  fxCtx.globalAlpha=0.05+intensity*0.07;
+  fxCtx.strokeStyle='#06b6d4';fxCtx.lineWidth=1;
+  const grid=48;
+  fxCtx.beginPath();
+  for(let gy=0;gy<h;gy+=grid){fxCtx.moveTo(0,gy);fxCtx.lineTo(w,gy);}
+  for(let gx=0;gx<w;gx+=grid){fxCtx.moveTo(gx,0);fxCtx.lineTo(gx,h);}
+  fxCtx.stroke();
+  fxCtx.globalAlpha=1;
+  // Subtle scanlines
+  fxCtx.globalAlpha=0.06+intensity*0.08;
+  fxCtx.fillStyle='#000';
+  for(let yy=0;yy<h;yy+=3)fxCtx.fillRect(0,yy,w,1);
+  fxCtx.globalAlpha=1;
+}
+
+// ── Matrix Rain (universal — works on image too as overlay) ──
+function initMatrix(w){
+  const fontSize=14;
+  matrixCols=Math.floor(w/fontSize);
+  matrixDrops=new Array(matrixCols).fill(0).map(()=>Math.random()*-50);
+}
+function renderMatrix(){
+  const w=fxCanvas.width,h=fxCanvas.height;
+  // Base: source image dimmed
+  fxCtx.fillStyle='rgba(0,0,0,0.18)';
+  fxCtx.fillRect(0,0,w,h);
+  if(frameCount%2===0){
+    // Refresh source occasionally
+    sampleSource(fxCanvas,fxCtx,w,h);
+    fxCtx.fillStyle='rgba(0,0,0,'+(0.4+intensity*0.4)+')';
+    fxCtx.fillRect(0,0,w,h);
+  }else{
+    fxCtx.fillStyle='rgba(0,0,0,0.08)';
+    fxCtx.fillRect(0,0,w,h);
+  }
+  if(matrixCols===0||matrixDrops.length!==Math.floor(w/14))initMatrix(w);
+  const fontSize=14;
+  fxCtx.font=fontSize+'px monospace';
+  fxCtx.fillStyle='#0fff7a';
+  for(let i=0;i<matrixDrops.length;i++){
+    const ch=MATRIX_CHARS.charAt(Math.floor(Math.random()*MATRIX_CHARS.length));
+    const x=i*fontSize;
+    const y=matrixDrops[i]*fontSize;
+    if(y>0&&y<h){
+      fxCtx.fillStyle='rgba(180,255,200,0.95)';
+      fxCtx.fillText(ch,x,y);
+      fxCtx.fillStyle='rgba(15,255,122,0.7)';
+      fxCtx.fillText(ch,x,y-fontSize);
+    }
+    matrixDrops[i]+=0.4+intensity*1.2;
+    if(y>h&&Math.random()>0.975)matrixDrops[i]=Math.random()*-30;
+  }
 }
 
 // ================================================================
@@ -689,7 +1719,7 @@ function renderOverlay(){
   if(!hasSource)return;
   const w=overlayCanvas.width,h=overlayCanvas.height;
   overlayCtx.clearRect(0,0,w,h);
-  if(frameCount%2===0)generateGrain();
+  if(frameCount%3===0)generateGrain();
   overlayCtx.globalAlpha=0.038;
   overlayCtx.drawImage(grainOff,0,0,w,h);
   overlayCtx.globalAlpha=1;
@@ -709,16 +1739,58 @@ function sampleSource(canvas,ctx,w,h){
 }
 
 // ================================================================
+//  Compare — draw original (unfiltered) into origCanvas
+// ================================================================
+function renderOriginal(){
+  if(!compareMode||!hasSource)return;
+  sampleSource(origCanvas,origCtx,origCanvas.width,origCanvas.height);
+  // Apply clip via inset
+  const compareOrigEl=document.getElementById('compareOrig');
+  compareOrigEl.style.clipPath=`inset(0 ${(1-compareSplit)*100}% 0 0)`;
+}
+
+// ================================================================
+//  FPS tracking
+// ================================================================
+function updateFPS(){
+  fpsFrames++;
+  const now=performance.now();
+  const dt=now-fpsLastTime;
+  if(dt>=500){
+    fpsValue=Math.round((fpsFrames*1000)/dt);
+    fpsLastTime=now;fpsFrames=0;
+    if(hasSource){
+      fpsBadge.classList.add('visible');
+      fpsText.textContent=fpsValue+' FPS';
+      fpsDot.className='fps-dot'+(fpsValue<20?' low':fpsValue<40?' med':'');
+    }else{
+      fpsBadge.classList.remove('visible');
+    }
+  }
+}
+
+// ================================================================
 //  Main loop
 // ================================================================
 function loop(){
   frameCount++;
   if(hasSource){
-    if     (currentFx==='ascii') renderASCII();
-    else if(currentFx==='warp')  renderTimeWarp();
-    else                          renderGL();
+    if(currentFx==='ascii') renderASCII();
+    else if(currentFx==='warp')     renderTimeWarp();
+    else if(currentFx==='mirror')   renderMirrorDream();
+    else if(currentFx==='tunnel')   renderMirrorTunnel();
+    else if(currentFx==='swirl')    renderSwirl();
+    else if(currentFx==='slit')     renderSlitScan();
+    else if(currentFx==='stardust') renderStardust();
+    else if(currentFx==='datamosh') renderDatamosh();
+    else if(currentFx==='rgbdelay') renderRgbDelay();
+    else if(currentFx==='scanner')  renderScanner();
+    else if(currentFx==='matrix')   renderMatrix();
+    else renderGL();
     renderOverlay();
+    if(compareMode) renderOriginal();
   }
+  updateFPS();
   rafId=requestAnimationFrame(loop);
 }
 
@@ -730,16 +1802,28 @@ function resizeCanvases(w,h){
   const scale=Math.min(ww/w,wh/h,1.0);
   const cw=Math.floor(w*scale),ch=Math.floor(h*scale);
   canvasWrap.style.width=cw+'px';canvasWrap.style.height=ch+'px';
-  [glCanvas,asciiCanvas,warpCanvas,overlayCanvas].forEach(c=>{c.width=w;c.height=h;});
+  [glCanvas,asciiCanvas,warpCanvas,fxCanvas,overlayCanvas,origCanvas].forEach(c=>{c.width=w;c.height=h;});
   buildVignette(w,h);
   warpReady=false;warpRunning=false;
+  stardustParticles.length=0;
+  slitFrames.length=0;rgbDelayBuf.length=0;
+  datamoshActive=false;datamoshFreezeUntil=0;
+  if(scannerAcc.width>0){scannerAccCtx.fillStyle='#000';scannerAccCtx.fillRect(0,0,scannerAcc.width,scannerAcc.height);}
+  matrixCols=0;
 }
 function showCanvas(){
   glCanvas.style.display='none';
   asciiCanvas.style.display='none';
   warpCanvas.style.display='none';
+  fxCanvas.style.display='none';
   if(!hasSource)return;
-  const map={ascii:asciiCanvas,warp:warpCanvas};
+  const map={
+    ascii:asciiCanvas,
+    warp:warpCanvas,
+    matrix:fxCanvas,mirror:fxCanvas,tunnel:fxCanvas,swirl:fxCanvas,
+    slit:fxCanvas,stardust:fxCanvas,
+    datamosh:fxCanvas,rgbdelay:fxCanvas,scanner:fxCanvas
+  };
   (map[currentFx]||glCanvas).style.display='block';
 }
 
@@ -750,6 +1834,11 @@ function activateSource(webcam){
   isWebcam=webcam;hasSource=true;
   emptyState.classList.add('hidden');
   canvasWrap.style.display='block';
+  updateCamOnlyDisabledState();
+  // If image loaded but currentFx is camera-only, switch to glitch
+  if(!isWebcam && FX_CAM_ONLY.has(currentFx)){
+    setActiveFx('glitch','universal');
+  }
   showCanvas();
   if(!rafId)loop();
 }
@@ -757,17 +1846,23 @@ function resetAll(){
   stopWebcam();
   imgEl=null;hasSource=false;isWebcam=false;
   warpReady=false;warpRunning=false;
+  stardustParticles.length=0;
+  slitFrames.length=0;rgbDelayBuf.length=0;
+  datamoshActive=false;datamoshFreezeUntil=0;
   document.querySelector('.fx-btn[data-fx="warp"]').classList.remove('warp-running');
   canvasWrap.style.display='none';
   emptyState.classList.remove('hidden');
-  [asciiCanvas,warpCanvas,overlayCanvas].forEach(c=>{
+  fpsBadge.classList.remove('visible');
+  [asciiCanvas,warpCanvas,fxCanvas,overlayCanvas,origCanvas].forEach(c=>{
     const ctx=c.getContext('2d');if(ctx)ctx.clearRect(0,0,c.width,c.height);
   });
   gl.clearColor(0.04,0.04,0.04,1);gl.clear(gl.COLOR_BUFFER_BIT);
+  setCompareMode(false);
+  updateCamOnlyDisabledState();
 }
 
 // ================================================================
-//  Webcam — with full error handling
+//  Webcam
 // ================================================================
 const camBtn=document.getElementById('camBtn');
 async function startWebcam(){
@@ -834,20 +1929,66 @@ function loadImage(file){
 }
 
 // ================================================================
-//  UI Events
+//  Tabs / FX selection
 // ================================================================
+const fxRowUniversal=document.getElementById('fxRowUniversal');
+const fxRowCam=document.getElementById('fxRowCam');
+let activeTab='universal';
+
+function setActiveTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  fxRowUniversal.classList.toggle('active',tab==='universal');
+  fxRowCam.classList.toggle('active',tab==='cam');
+}
+function setActiveFx(fx,tab){
+  if(tab) setActiveTab(tab);
+  document.querySelectorAll('.fx-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.querySelector(`.fx-btn[data-fx="${fx}"]`);
+  if(btn) btn.classList.add('active');
+  // Reset state for previous FX type
+  if(currentFx==='warp'&&fx!=='warp'){
+    warpRunning=false;warpReady=false;
+    document.querySelector('.fx-btn[data-fx="warp"]').classList.remove('warp-running');
+  }
+  if(fx!=='stardust') stardustParticles.length=0;
+  if(fx!=='slit') slitFrames.length=0;
+  if(fx!=='rgbdelay') rgbDelayBuf.length=0;
+  if(fx!=='datamosh'){datamoshActive=false;datamoshFreezeUntil=0;}
+  if(fx!=='scanner'&&scannerAcc.width>0){
+    scannerAccCtx.fillStyle='#000';scannerAccCtx.fillRect(0,0,scannerAcc.width,scannerAcc.height);
+  }
+  currentFx=fx;
+  showCanvas();
+}
+
+function updateCamOnlyDisabledState(){
+  document.querySelectorAll('#fxRowCam .fx-btn').forEach(b=>{
+    if(!isWebcam) b.classList.add('cam-disabled');
+    else b.classList.remove('cam-disabled');
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>setActiveTab(btn.dataset.tab));
+});
+
 document.querySelectorAll('.fx-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     const fx=btn.dataset.fx;
-    if(fx==='warp'&&currentFx==='warp'){ startWarpScan(); return; }
-    if(currentFx==='warp'){
-      warpRunning=false;warpReady=false;
-      document.querySelector('.fx-btn[data-fx="warp"]').classList.remove('warp-running');
+    if(FX_CAM_ONLY.has(fx)&&!isWebcam){
+      // Show subtle hint via tooltip
+      const tt=document.getElementById('fx-tooltip');
+      tt.textContent='Tento efekt vyžaduje kameru. Spusti ju cez tlačidlo KAMERA.';
+      const r=btn.getBoundingClientRect();
+      tt.style.left=Math.max(8,Math.min(window.innerWidth-220,r.left+r.width/2-105))+'px';
+      tt.style.top=Math.max(8,r.top-60)+'px';
+      tt.classList.add('tt-show');
+      setTimeout(()=>tt.classList.remove('tt-show'),1800);
+      return;
     }
-    document.querySelectorAll('.fx-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFx=fx;
-    showCanvas();
+    if(fx==='warp'&&currentFx==='warp'){ startWarpScan(); return; }
+    setActiveFx(fx);
   });
 });
 
@@ -893,7 +2034,9 @@ canvasArea.addEventListener('touchmove',e=>{
 
 // Save + Flash
 document.getElementById('saveBtn').addEventListener('click',()=>{
-  const map={ascii:asciiCanvas,warp:warpCanvas};
+  const map={ascii:asciiCanvas,warp:warpCanvas,matrix:fxCanvas,mirror:fxCanvas,
+    tunnel:fxCanvas,swirl:fxCanvas,slit:fxCanvas,stardust:fxCanvas,
+    datamosh:fxCanvas,rgbdelay:fxCanvas,scanner:fxCanvas};
   const src=map[currentFx]||glCanvas;
   const a=document.createElement('a');
   a.href=src.toDataURL('image/png');
@@ -925,38 +2068,94 @@ themeToggle.addEventListener('click',()=>{
   themeToggle.textContent=light?'🌙':'☀️';
 });
 
-// ── JS Tooltip (position:fixed, obchádza backdrop-filter stacking context) ──
-const ttEl = document.getElementById('fx-tooltip');
-let ttTimer = null;
-function ttPosition(btn){
-  const r  = btn.getBoundingClientRect();
-  const tw = 200;
-  const th = ttEl.offsetHeight || 56;
-  let left = r.left + r.width/2 - tw/2;
-  let top  = r.top - th - 10;
-  left = Math.max(8, Math.min(window.innerWidth - tw - 8, left));
-  top  = Math.max(8, top);
-  ttEl.style.left = left + 'px';
-  ttEl.style.top  = top  + 'px';
+// ── Compare (Before/After slider) ──
+const compareToggle=document.getElementById('compareToggle');
+const compareOrigEl=document.getElementById('compareOrig');
+const compareHandle=document.getElementById('compareHandle');
+const cmpLabelBefore=document.getElementById('cmpLabelBefore');
+const cmpLabelAfter=document.getElementById('cmpLabelAfter');
+
+function setCompareMode(on){
+  compareMode=!!on;
+  compareToggle.classList.toggle('active',compareMode);
+  compareOrigEl.classList.toggle('visible',compareMode&&hasSource);
+  compareHandle.classList.toggle('visible',compareMode&&hasSource);
+  cmpLabelBefore.classList.toggle('visible',compareMode&&hasSource);
+  cmpLabelAfter.classList.toggle('visible',compareMode&&hasSource);
+  updateCompareHandle();
 }
-document.querySelectorAll('.fx-btn[data-tooltip]').forEach(btn => {
-  btn.addEventListener('mouseenter', () => {
-    ttEl.textContent = btn.dataset.tooltip;
+function updateCompareHandle(){
+  compareHandle.style.left=(compareSplit*100)+'%';
+}
+compareToggle.addEventListener('click',()=>{
+  if(!hasSource){
+    alert('Najprv nahraj obrázok alebo spusti kameru.');return;
+  }
+  setCompareMode(!compareMode);
+});
+
+let compareDrag=false;
+function compareMoveFromX(clientX){
+  const r=canvasWrap.getBoundingClientRect();
+  compareSplit=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+  updateCompareHandle();
+}
+compareHandle.addEventListener('mousedown',e=>{compareDrag=true;e.preventDefault();});
+window.addEventListener('mousemove',e=>{if(compareDrag)compareMoveFromX(e.clientX);});
+window.addEventListener('mouseup',()=>{compareDrag=false;});
+compareHandle.addEventListener('touchstart',e=>{compareDrag=true;},{passive:true});
+window.addEventListener('touchmove',e=>{
+  if(compareDrag&&e.touches[0])compareMoveFromX(e.touches[0].clientX);
+},{passive:true});
+window.addEventListener('touchend',()=>{compareDrag=false;});
+
+// Tooltip
+const ttEl=document.getElementById('fx-tooltip');
+let ttTimer=null;
+function ttPosition(btn){
+  const r=btn.getBoundingClientRect();
+  const tw=210;
+  const th=ttEl.offsetHeight||56;
+  let left=r.left+r.width/2-tw/2;
+  let top=r.top-th-10;
+  left=Math.max(8,Math.min(window.innerWidth-tw-8,left));
+  top=Math.max(8,top);
+  ttEl.style.left=left+'px';ttEl.style.top=top+'px';
+}
+document.querySelectorAll('.fx-btn[data-tooltip]').forEach(btn=>{
+  btn.addEventListener('mouseenter',()=>{
+    ttEl.textContent=btn.dataset.tooltip;
     ttPosition(btn);
-    ttTimer = setTimeout(() => ttEl.classList.add('tt-show'), 300);
+    ttTimer=setTimeout(()=>ttEl.classList.add('tt-show'),300);
   });
-  btn.addEventListener('mouseleave', () => {
+  btn.addEventListener('mouseleave',()=>{
     clearTimeout(ttTimer);
     ttEl.classList.remove('tt-show');
   });
-  btn.addEventListener('mousemove', () => ttPosition(btn));
+  btn.addEventListener('mousemove',()=>ttPosition(btn));
 });
+
+// Window resize
+window.addEventListener('resize',()=>{
+  if(hasSource){
+    const w=glCanvas.width,h=glCanvas.height;
+    const ww=canvasArea.clientWidth-20,wh=canvasArea.clientHeight-20;
+    const scale=Math.min(ww/w,wh/h,1.0);
+    canvasWrap.style.width=Math.floor(w*scale)+'px';
+    canvasWrap.style.height=Math.floor(h*scale)+'px';
+  }
+});
+
+// Cleanup on unload
+window.addEventListener('beforeunload',stopWebcam);
+window.addEventListener('pagehide',stopWebcam);
 
 // ================================================================
 //  Init
 // ================================================================
 initPrograms();
 gl.clearColor(0.04,0.04,0.04,1.0);
+updateCamOnlyDisabledState();
 loop();
 </script>
 </body>
